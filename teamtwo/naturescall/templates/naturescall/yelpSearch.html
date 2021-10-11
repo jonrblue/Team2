@@ -1,13 +1,15 @@
 {% extends  "naturescall/index.html" %}
 {% block content %}
-<form action="yelpSearch/" method="POST">
+<form action="" method="POST">
 	{%csrf_token%}
 	{{ form.as_p}}
-	<input type= "submit" value="Search">
+	<input type= "submit" value = "Sumbit">
 </form>
 <br>
 <h2>You are searching for restrooms near {{location}}</h2>
 <ul>
+
+
 <h3> Restroom &emsp; Address </h3>
 {% for d in data%}
 {{d.name}} &emsp; {{d.location.display_address}}
