@@ -1,3 +1,4 @@
+from naturescall.models import Restroom
 from django.shortcuts import render
 from django.http import HttpResponse
 from .forms import LocationForm
@@ -14,7 +15,7 @@ API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'
 DEFAULT_TERM = 'food'
-SEARCH_LIMIT = 3
+SEARCH_LIMIT = 10
 
 def index(request):
     context={}
@@ -27,13 +28,28 @@ def yelpSearch(request):
     location = request.POST['location']
     k= search(api_key,DEFAULT_TERM, location)
     data=[]
+
     if not k.get('error'):
         data= k['businesses']
+
+    
+    print("The returned json obj is: \n {}".format(data))
+
+    #loading rating data from our database
+    for restroom in data:
+        id = restroom['id']
+        querySet = Restroom.objects.filter(yelp_id = id)
+        if len(querySet) == 0:
+            restroom['our_rating'] = 'no rating'
+        else:
+            restroom['our_rating'] = querySet.values()[0]['rating']
+            
     print(data)
+
     context['form']= form
     context['location']= location
     context['data']= data
-    print(request.POST)
+    #print(request.POST)
     return render(request, "naturescall/yelpSearch.html", context)
 
 def request(host, path, api_key, url_params=None):
