@@ -10,9 +10,9 @@
 <ul>
 
 
-<h3> YelpBusinessID &emsp;  Restroom &emsp; Address </h3>
+<h3> YelpBusinessID &emsp;  Restroom &emsp; Address &emsp; OurRating</h3>
 {% for d in data%}
-{{d.id}} &emsp; {{d.name}} &emsp; {{d.location.display_address}}
+{{d.id}} &emsp; {{d.name}} &emsp; {{d.location.display_address}} &emsp; {{d.our_rating}}
 <br>
 {% endfor%}
 {% endblock %}
