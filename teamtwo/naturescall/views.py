@@ -27,7 +27,8 @@ def yelpSearch(request):
     location = request.POST['location']
     k= search(api_key,DEFAULT_TERM, location)
     data=[]
-    data= k['businesses']
+    if not k.get('error'):
+        data= k['businesses']
     print(data)
     context['form']= form
     context['location']= location
