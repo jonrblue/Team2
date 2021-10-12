@@ -1,18 +1,21 @@
 {% extends  "naturescall/index.html" %}
 {% block content %}
-<form action="" method="POST">
-	{%csrf_token%}
-	{{ form.as_p}}
-	<input type= "submit" value = "Sumbit">
-</form>
-<br>
-<h2>You are searching for restrooms near {{location}}</h2>
-<ul>
-
-
-<h3> YelpBusinessID &emsp;  Restroom &emsp; Address &emsp; OurRating</h3>
-{% for d in data%}
-{{d.id}} &emsp; {{d.name}} &emsp; {{d.location.display_address}} &emsp; {{d.our_rating}}
-<br>
-{% endfor%}
+    <form action="" method="POST">
+        {%csrf_token%}
+        {{ form.as_p}}
+        <input type= "submit" value = "Submit">
+    </form>
+    <br>
+    {%  if data %}
+        <h2>You are searching for restrooms near {{location}}</h2>
+        <ul>
+            <h3> YelpBusinessID &emsp;  Restroom &emsp; Address &emsp; OurRating</h3>
+            {% for d in data%}
+                {{d.id}} &emsp; {{d.name}} &emsp; {{d.location.display_address}} &emsp; {{d.our_rating}}
+                <br>
+            {% endfor%}
+        </ul>
+    {%  else %}
+        <h3>Location Not Found</h3>
+    {% endif %}
 {% endblock %}

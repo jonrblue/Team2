@@ -28,7 +28,11 @@ def yelpSearch(request):
     location = request.POST['location']
     k= search(api_key,DEFAULT_TERM, location)
     data=[]
-    data= k['businesses']
+
+    if not k.get('error'):
+        data= k['businesses']
+
+    
     print("The returned json obj is: \n {}".format(data))
 
     #loading rating data from our database
@@ -39,7 +43,7 @@ def yelpSearch(request):
             restroom['our_rating'] = 'no rating'
         else:
             restroom['our_rating'] = querySet.values()[0]['rating']
-
+            
     print(data)
 
     context['form']= form
