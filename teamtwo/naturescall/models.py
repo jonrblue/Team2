@@ -10,3 +10,9 @@ class Restroom(models.Model):
     yelp_id = models.CharField(max_length=100)
     rating = models.FloatField(default=0.0,
                                validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
+    Accessibility = models.BooleanField(default=False)
+    FamilyFriendly = models.BooleanField(default=False)
+    GenderNeutral = models.BooleanField(default=False)
+    KeyRequired = models.BooleanField(default=False)
+    PayToUse = models.BooleanField(default=False)
+    ItemToBuy = models.BooleanField(default=False)
