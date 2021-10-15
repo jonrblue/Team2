@@ -1,0 +1,8 @@
+<h4>Placeholder</h4>
+{% if res %}
+    <h4>Restroom ID = {{ res.id }}</h4>
+    <h4>Yelp ID = {{ res.yelp_id }}</h4>
+
+{%  else %}
+    <h3>Location Not In Database</h3>
+{% endif %}

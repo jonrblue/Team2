@@ -42,10 +42,10 @@ def yelpSearch(request):
     for restroom in data:
         r_id = restroom['id']
         querySet = Restroom.objects.filter(yelp_id=r_id)
-        if len(querySet) == 0:
+        if not querySet:
             restroom['our_rating'] = 'no rating'
         else:
-            restroom['our_rating'] = querySet.values()[0]['rating']
+            restroom['our_rating'] = querySet.values()[0]['id']
 
     print(data)
 
@@ -55,6 +55,15 @@ def yelpSearch(request):
     # print(request.POST)
     return render(request, "naturescall/yelpSearch.html", context)
 
+def restroom(request, r_id):
+    """Show a single restroom"""
+    querySet = Restroom.objects.filter(id=r_id)
+    res = {}
+    if querySet:
+        res['id'] = querySet.values()[0]['id']
+        res['yelp_id'] = querySet.values()[0]['yelp_id']
+    context = {'res': res}
+    return render(request, "naturescall/restroom.html", context)
 
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}
