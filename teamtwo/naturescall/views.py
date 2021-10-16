@@ -10,8 +10,9 @@ import urllib
 from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.parse import urlencode
+import os
+api_key = str(os.getenv('yelp_key'))
 
-api_key = 'CL1ez7IjEGAsK5LINl-ehN8lTuQSaOqP8NncZD0e8JRLcOmmACCc3u87rtD7l1Bwpc9uzwQF8Oj2K6lo7f9cHo2P6xhlCFSI6Thph0MaRgRDcM4XA6iww7AX8QROYXYx'
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'
