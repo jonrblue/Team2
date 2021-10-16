@@ -36,7 +36,9 @@ def yelpSearch(request):
     if not k.get('error'):
         data = k['businesses']
 
+
     print("The returned json obj is: \n {}".format(data))
+    print("End of returned json obj \n")
 
     # loading rating data from our database
     for restroom in data:
@@ -44,16 +46,18 @@ def yelpSearch(request):
         querySet = Restroom.objects.filter(yelp_id=r_id)
         if not querySet:
             restroom['our_rating'] = 'no rating'
+            restroom['db_id'] = ''
         else:
-            restroom['our_rating'] = querySet.values()[0]['id']
-
-    print(data)
+            restroom['our_rating'] = querySet.values()[0]['rating']
+            restroom['db_id'] = querySet.values()[0]['id']
+            print(restroom['db_id'])
 
     context['form'] = form
     context['location'] = location
     context['data'] = data
     # print(request.POST)
     return render(request, "naturescall/yelpSearch.html", context)
+
 
 def restroom(request, r_id):
     """Show a single restroom"""
@@ -65,6 +69,7 @@ def restroom(request, r_id):
     context = {'res': res}
     return render(request, "naturescall/restroom.html", context)
 
+  
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}
     url = '{0}{1}'.format(host, quote(path.encode('utf8')))
@@ -74,7 +79,7 @@ def request(host, path, api_key, url_params=None):
     response = requests.request('GET', url, headers=headers, params=url_params)
     return response.json()
 
-
+  
 def search(api_key, term, location):
     url_params = {
         'term': term.replace(' ', '+'),
