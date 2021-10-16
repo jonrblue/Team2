@@ -42,7 +42,7 @@ def yelpSearch(request):
         querySet = Restroom.objects.filter(yelp_id = id)
         if len(querySet) == 0:
             restroom['our_rating'] = 'no rating'
-            restroom['db_id'] = 'no id'
+            restroom['db_id'] = ''
         else:
             restroom['our_rating'] = querySet.values()[0]['rating']
             restroom['db_id'] = querySet.values()[0]['id']
