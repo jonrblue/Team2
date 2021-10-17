@@ -1,9 +1,10 @@
 <h4>Placeholder</h4>
 {% if res %}
-    <h4>Restroom ID = {{ res.id }}</h4>
-    <h4>Yelp ID = {{ res.yelp_id }}</h4>
+    <h4>Restroom ID = {{ res.yelp_data.db_id }}</h4>
+    <h4>Yelp ID = {{ res.yelp_data.id }}</h4>
+    <h4>Restroom Name = {{ res.yelp_data.alias }}</h4>
+    <h4>Address = {{ res.yelp_data.location.display_address}}</h4>
 
 {%  else %}
     <h3>Location Not In Database</h3>
 {% endif %}
-

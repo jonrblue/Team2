@@ -64,12 +64,17 @@ def restroom(request, r_id):
     querySet = Restroom.objects.filter(id=r_id)
     res = {}
     if querySet:
-        res['id'] = querySet.values()[0]['id']
-        res['yelp_id'] = querySet.values()[0]['yelp_id']
+        #res['id'] = querySet.values()[0]['id']
+        #res['yelp_id'] = querySet.values()[0]['yelp_id']
+        yelp_id  = querySet.values()[0]['yelp_id']
+        yelp_data = get_business(api_key, yelp_id)
+        yelp_data['db_id'] = r_id
+        res['yelp_data'] = yelp_data
+
     context = {'res': res}
     return render(request, "naturescall/restroom.html", context)
 
-  
+
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}
     url = '{0}{1}'.format(host, quote(path.encode('utf8')))
@@ -79,7 +84,7 @@ def request(host, path, api_key, url_params=None):
     response = requests.request('GET', url, headers=headers, params=url_params)
     return response.json()
 
-  
+
 def search(api_key, term, location):
     url_params = {
         'term': term.replace(' ', '+'),
