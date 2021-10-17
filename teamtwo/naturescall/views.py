@@ -66,9 +66,10 @@ def restroom(request, r_id):
     if querySet:
         #res['id'] = querySet.values()[0]['id']
         #res['yelp_id'] = querySet.values()[0]['yelp_id']
-        yelp_id  = querySet.values()[0]['yelp_id']
+        yelp_id = querySet.values()[0]['yelp_id']
         yelp_data = get_business(api_key, yelp_id)
         yelp_data['db_id'] = r_id
+        yelp_data['rating'] = querySet.values()[0]['rating']
         res['yelp_data'] = yelp_data
 
     context = {'res': res}
