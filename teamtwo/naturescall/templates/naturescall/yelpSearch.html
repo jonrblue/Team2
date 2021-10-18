@@ -18,7 +18,13 @@
 	    		{% for d in data%}
 	    		<tr>
 				<td align='right'> {{d.id}} </td>
-				<td align='right'>{{d.name}}</td>
+				<td align='right'>
+          {% if d.db_id %}
+              <a href ="{% url 'naturescall:restroom' d.db_id %}">{{d.name}}</a>&emsp;
+          {%  else %}
+              {{ d.name }}
+          {% endif %}
+        </td>
 				<td align='right'>{{d.location.display_address}} </td>
 				<td align='right'>{{d.our_rating}}</td>
 				<td align='right'>

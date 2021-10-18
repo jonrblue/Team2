@@ -39,7 +39,9 @@ def yelpSearch(request):
     if not k.get('error'):
         data = k['businesses']
 
+
     print("The returned json obj is: \n {}".format(data))
+    print("End of returned json obj \n")
 
     # loading rating data from our database
     for restroom in data:
@@ -76,6 +78,23 @@ def addR(request, r_id):
         context['form']= form
         context['name']= name
         return render(request, "naturescall/addR.html", context)
+
+def restroom(request, r_id):
+    """Show a single restroom"""
+    querySet = Restroom.objects.filter(id=r_id)
+    res = {}
+    if querySet:
+        #res['id'] = querySet.values()[0]['id']
+        #res['yelp_id'] = querySet.values()[0]['yelp_id']
+        yelp_id = querySet.values()[0]['yelp_id']
+        yelp_data = get_business(api_key, yelp_id)
+        yelp_data['db_id'] = r_id
+        yelp_data['rating'] = querySet.values()[0]['rating']
+        res['yelp_data'] = yelp_data
+
+    context = {'res': res}
+    return render(request, "naturescall/restroom.html", context)
+
 
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}
