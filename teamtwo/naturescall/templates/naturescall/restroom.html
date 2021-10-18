@@ -5,6 +5,10 @@
     <h4>Restroom Name = {{ res.yelp_data.alias }}</h4>
     <h4>Address = {{ res.yelp_data.location.display_address}}</h4>
     <h4>Rating = {{ res.yelp_data.rating }} </h4>
+    <h4>Accessible = {{ res.yelp_data.Accessible }} </h4>
+    <h4>FamilyFriendly = {{ res.yelp_data.FamilyFriendly }} </h4>
+    <h4>TransactionRequired = {{ res.yelp_data.TransactionRequired }} </h4>
+
 
 {%  else %}
     <h3>Location Not In Database</h3>

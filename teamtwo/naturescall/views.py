@@ -90,6 +90,10 @@ def restroom(request, r_id):
         yelp_data = get_business(api_key, yelp_id)
         yelp_data['db_id'] = r_id
         yelp_data['rating'] = querySet.values()[0]['rating']
+        yelp_data['Accessible'] = querySet.values()[0]['Accessible']
+        yelp_data['FamilyFriendly'] = querySet.values()[0]['FamilyFriendly']
+        yelp_data['TransactionRequired'] = querySet.values()[0]['TransactionRequired']
+
         res['yelp_data'] = yelp_data
 
     context = {'res': res}
