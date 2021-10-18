@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('yelpSearch/', views.yelpSearch, name='yelpSearch'),
     path('restroom/<int:r_id>', views.restroom, name='restroom'),
+    path('addR/<slug:r_id>', views.addR, name ='addR'),
 ]

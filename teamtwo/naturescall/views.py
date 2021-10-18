@@ -1,7 +1,8 @@
 from naturescall.models import Restroom
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .forms import LocationForm
+from .forms import AddRestroom
 import requests
 import argparse
 import json
@@ -11,6 +12,7 @@ from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.parse import urlencode
 import os
+from django.urls import reverse
 api_key = str(os.getenv('yelp_key'))
 
 API_HOST = 'https://api.yelp.com'
@@ -59,6 +61,23 @@ def yelpSearch(request):
     # print(request.POST)
     return render(request, "naturescall/yelpSearch.html", context)
 
+def addR(request, r_id):
+    if request.method== 'POST':
+        f= AddRestroom(request.POST)
+        if f.is_valid():
+            post= f.save(commit= False)
+            post.save()
+            return HttpResponseRedirect(reverse('naturescall:index'))
+        else:
+            return render(request, "naturescall/addR.html", {'form':f})
+    else:
+        k= get_business(api_key, r_id)
+        context={}
+        name= k['name']
+        form = AddRestroom(initial= {'yelp_id' : r_id})
+        context['form']= form
+        context['name']= name
+        return render(request, "naturescall/addR.html", context)
 
 def restroom(request, r_id):
     """Show a single restroom"""
