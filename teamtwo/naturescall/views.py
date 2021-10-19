@@ -54,6 +54,8 @@ def yelpSearch(request):
             restroom['our_rating'] = querySet.values()[0]['rating']
             restroom['db_id'] = querySet.values()[0]['id']
             print(restroom['db_id'])
+        addr = str(restroom['location']['display_address'])
+        restroom['addr'] = addr.translate(str.maketrans('', '', '[]\''))
 
     context['form'] = form
     context['location'] = location
@@ -95,6 +97,8 @@ def restroom(request, r_id):
         yelp_data['TransactionRequired'] = querySet.values()[0]['TransactionRequired']
 
         res['yelp_data'] = yelp_data
+        addr = str(yelp_data['location']['display_address'])
+        res['addr'] = addr.translate(str.maketrans('', '', '[]\''))
 
     context = {'res': res}
     return render(request, "naturescall/restroom.html", context)

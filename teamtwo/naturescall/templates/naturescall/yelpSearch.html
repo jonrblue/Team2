@@ -25,7 +25,8 @@
                             {{ d.name }}
                         {% endif %}
                     </td>
-                    <td align='right'>{{d.location.display_address}} </td>
+{#                    <td align='right'>{{d.location.display_address}} </td>#}
+                    <td align='right'>{{d.addr}} </td>
                     <td align='center'>
                         {% if not d.db_id %}
                             <a href= "{% url 'naturescall:addR' d.id %}">Add Restroom</a>
