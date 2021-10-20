@@ -104,6 +104,7 @@ def restroom(request, r_id):
         res['yelp_data'] = yelp_data
         addr = str(yelp_data['location']['display_address'])
         res['addr'] = addr.translate(str.maketrans('', '', '[]\''))
+        res['desc'] = querySet.values()[0]['Description']
 
     context = {'res': res}
     return render(request, "naturescall/restroom.html", context)
