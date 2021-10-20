@@ -18,8 +18,8 @@ api_key = str(os.getenv('yelp_key'))
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'
-DEFAULT_TERM = 'food'
-SEARCH_LIMIT = 10
+#DEFAULT_TERM = 'food'
+#SEARCH_LIMIT = 10
 
 
 def index(request):
@@ -34,36 +34,12 @@ def yelpSearch(request):
     form = LocationForm(request.POST or None)
     location = request.POST['location']
 
-    k = search(api_key, 'food', location, 10)
-    f = search(api_key, 'public', location, 5)
-    c = search(api_key, 'restroom', location, 5)
+    k = search(api_key, '"restroom","food","public"', location, 20)
 
-    k_data = f_data = c_data = []
+    data = []
 
     if not k.get('error'):
-        k_data = k['businesses']
-
-    if not f.get('error'):
-        f_data = f['businesses']
-
-    if not c.get('error'):
-        c_data = c['businesses']
-
-    data = k_data + f_data + c_data
-
-    #data deduplicate
-    yelpID_set = set()
-    no_dup_data = []
-    for restroom in data:
-        if restroom['id'] in yelpID_set:
-            continue
-        yelpID_set.add(restroom['id'])
-        no_dup_data.append(restroom)
-
-    data = no_dup_data
-
-
-
+        data = k['businesses']
 
     print("The returned json obj is: \n {}".format(data))
     print("End of returned json obj \n")
@@ -144,7 +120,7 @@ def search(api_key, term, location, num):
         'term': term.replace(' ', '+'),
         'location': location.replace(' ', '+'),
         'limit': num,
-        'radius': 900
+        'radius': 500
     }
     return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
 
