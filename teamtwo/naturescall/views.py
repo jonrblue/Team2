@@ -38,7 +38,7 @@ def yelpSearch(request):
     f = search(api_key, 'public', location, 5)
     c = search(api_key, 'restroom', location, 5)
 
-    data = []
+    k_data = f_data = c_data = []
 
     if not k.get('error'):
         k_data = k['businesses']
