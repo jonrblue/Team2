@@ -1,7 +1,8 @@
 from naturescall.models import Restroom
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .forms import LocationForm
+from .forms import AddRestroom
 import requests
 import argparse
 import json
@@ -10,63 +11,128 @@ import urllib
 from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.parse import urlencode
-api_key = 'CL1ez7IjEGAsK5LINl-ehN8lTuQSaOqP8NncZD0e8JRLcOmmACCc3u87rtD7l1Bwpc9uzwQF8Oj2K6lo7f9cHo2P6xhlCFSI6Thph0MaRgRDcM4XA6iww7AX8QROYXYx'
+import os
+from django.urls import reverse
+api_key = str(os.getenv('yelp_key'))
+
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'
-DEFAULT_TERM = 'food'
-SEARCH_LIMIT = 10
+#DEFAULT_TERM = 'food'
+#SEARCH_LIMIT = 10
+
 
 def index(request):
-    context={}
-    form= LocationForm(request.POST or None)
-    context['form']= form
+    context = {}
+    form = LocationForm(request.POST or None)
+    context['form'] = form
     return render(request, "naturescall/index.html", context)
+
+
 def yelpSearch(request):
-    context={}
-    form= LocationForm(request.POST or None)
+    context = {}
+    form = LocationForm(request.POST or None)
     location = request.POST['location']
-    k= search(api_key,DEFAULT_TERM, location)
-    data=[]
+
+    k = search(api_key, '"restroom","food","public"', location, 20)
+
+    data = []
 
     if not k.get('error'):
-        data= k['businesses']
+        data = k['businesses']
+        #sort by distance
+        data.sort(key = getDistance)
 
-    
     print("The returned json obj is: \n {}".format(data))
+    print("End of returned json obj \n")
 
-    #loading rating data from our database
+
+    # loading rating data from our database
     for restroom in data:
-        id = restroom['id']
-        querySet = Restroom.objects.filter(yelp_id = id)
-        if len(querySet) == 0:
+        print(restroom['distance'])
+        r_id = restroom['id']
+        querySet = Restroom.objects.filter(yelp_id=r_id)
+        if not querySet:
             restroom['our_rating'] = 'no rating'
+            restroom['db_id'] = ''
         else:
             restroom['our_rating'] = querySet.values()[0]['rating']
-            
-    print(data)
+            restroom['db_id'] = querySet.values()[0]['id']
+            print(restroom['db_id'])
+        addr = str(restroom['location']['display_address'])
+        restroom['addr'] = addr.translate(str.maketrans('', '', '[]\''))
 
-    context['form']= form
-    context['location']= location
-    context['data']= data
-    #print(request.POST)
+    context['form'] = form
+    context['location'] = location
+    context['data'] = data
+    # print(request.POST)
     return render(request, "naturescall/yelpSearch.html", context)
+
+def addR(request, r_id):
+    if request.method== 'POST':
+        f= AddRestroom(request.POST)
+        if f.is_valid():
+            post= f.save(commit= False)
+            post.save()
+            return HttpResponseRedirect(reverse('naturescall:index'))
+        else:
+            return render(request, "naturescall/addR.html", {'form':f})
+    else:
+        k= get_business(api_key, r_id)
+        context={}
+        name= k['name']
+        form = AddRestroom(initial= {'yelp_id' : r_id})
+        context['form']= form
+        context['name']= name
+        return render(request, "naturescall/addR.html", context)
+
+def restroom(request, r_id):
+    """Show a single restroom"""
+    querySet = Restroom.objects.filter(id=r_id)
+    res = {}
+    if querySet:
+        #res['id'] = querySet.values()[0]['id']
+        #res['yelp_id'] = querySet.values()[0]['yelp_id']
+        yelp_id = querySet.values()[0]['yelp_id']
+        yelp_data = get_business(api_key, yelp_id)
+        yelp_data['db_id'] = r_id
+        yelp_data['rating'] = querySet.values()[0]['rating']
+        yelp_data['Accessible'] = querySet.values()[0]['Accessible']
+        yelp_data['FamilyFriendly'] = querySet.values()[0]['FamilyFriendly']
+        yelp_data['TransactionRequired'] = querySet.values()[0]['TransactionRequired']
+
+        res['yelp_data'] = yelp_data
+        addr = str(yelp_data['location']['display_address'])
+        res['addr'] = addr.translate(str.maketrans('', '', '[]\''))
+        res['desc'] = querySet.values()[0]['Description']
+
+    context = {'res': res}
+    return render(request, "naturescall/restroom.html", context)
+
 
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}
     url = '{0}{1}'.format(host, quote(path.encode('utf8')))
     headers = {
-            'Authorization': 'Bearer %s' % api_key,
-            }
+        'Authorization': 'Bearer %s' % api_key,
+    }
     response = requests.request('GET', url, headers=headers, params=url_params)
     return response.json()
-def search(api_key, term, location):
+
+
+def search(api_key, term, location, num):
     url_params = {
-            'term': term.replace(' ', '+'),
-            'location': location.replace(' ', '+'),
-            'limit': SEARCH_LIMIT
-            }
+        'term': term.replace(' ', '+'),
+        'location': location.replace(' ', '+'),
+        'limit': num,
+        'radius': 500
+    }
     return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
+
+
 def get_business(api_key, business_id):
     business_path = BUSINESS_PATH + business_id
     return request(API_HOST, business_path, api_key)
+
+def getDistance(restroom_dic):
+    return restroom_dic['distance']
