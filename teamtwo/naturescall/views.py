@@ -33,11 +33,36 @@ def yelpSearch(request):
     context = {}
     form = LocationForm(request.POST or None)
     location = request.POST['location']
-    k = search(api_key, DEFAULT_TERM, location)
+
+    k = search(api_key, 'food', location, 10)
+    f = search(api_key, 'public', location, 5)
+    c = search(api_key, 'restroom', location, 5)
+
     data = []
 
     if not k.get('error'):
-        data = k['businesses']
+        k_data = k['businesses']
+
+    if not f.get('error'):
+        f_data = f['businesses']
+
+    if not c.get('error'):
+        c_data = c['businesses']
+
+    data = k_data + f_data + c_data
+
+    #data deduplicate
+    yelpID_set = set()
+    no_dup_data = []
+    for restroom in data:
+        if restroom['id'] in yelpID_set:
+            continue
+        yelpID_set.add(restroom['id'])
+        no_dup_data.append(restroom)
+
+    data = no_dup_data
+
+
 
 
     print("The returned json obj is: \n {}".format(data))
@@ -114,11 +139,12 @@ def request(host, path, api_key, url_params=None):
     return response.json()
 
 
-def search(api_key, term, location):
+def search(api_key, term, location, num):
     url_params = {
         'term': term.replace(' ', '+'),
         'location': location.replace(' ', '+'),
-        'limit': SEARCH_LIMIT
+        'limit': num,
+        'radius': 900
     }
     return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
 
