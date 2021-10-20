@@ -40,12 +40,16 @@ def yelpSearch(request):
 
     if not k.get('error'):
         data = k['businesses']
+        #sort by distance
+        data.sort(key = getDistance)
 
     print("The returned json obj is: \n {}".format(data))
     print("End of returned json obj \n")
 
+
     # loading rating data from our database
     for restroom in data:
+        print(restroom['distance'])
         r_id = restroom['id']
         querySet = Restroom.objects.filter(yelp_id=r_id)
         if not querySet:
@@ -128,3 +132,6 @@ def search(api_key, term, location, num):
 def get_business(api_key, business_id):
     business_path = BUSINESS_PATH + business_id
     return request(API_HOST, business_path, api_key)
+
+def getDistance(restroom_dic):
+    return restroom_dic['distance']
