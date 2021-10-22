@@ -7,20 +7,22 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('naturescall', '0003_auto_20211015_1716'),
+        ("naturescall", "0003_auto_20211015_1716"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='restroom',
-            name='Description',
-            field=models.TextField(default='enter restroom description'),
+            model_name="restroom",
+            name="Description",
+            field=models.TextField(default="enter restroom description"),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='restroom',
-            name='Last_Modified',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="restroom",
+            name="Last_Modified",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
     ]

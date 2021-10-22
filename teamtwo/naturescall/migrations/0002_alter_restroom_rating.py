@@ -7,13 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('naturescall', '0001_initial'),
+        ("naturescall", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='restroom',
-            name='rating',
-            field=models.FloatField(default=0.0, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(5.0)]),
+            model_name="restroom",
+            name="rating",
+            field=models.FloatField(
+                default=0.0,
+                validators=[
+                    django.core.validators.MinValueValidator(0.0),
+                    django.core.validators.MaxValueValidator(5.0),
+                ],
+            ),
         ),
     ]
