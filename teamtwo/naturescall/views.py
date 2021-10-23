@@ -4,12 +4,15 @@ from django.http import HttpResponseRedirect
 from .forms import LocationForm
 from .forms import AddRestroom
 import requests
+from django.contrib.auth.decorators import login_required
+
 # import argparse
 # import json
 # import sys
 # import urllib
 # from urllib.error import HTTPError
 from urllib.parse import quote
+
 # from urllib.parse import urlencode
 import os
 from django.urls import reverse
@@ -71,6 +74,7 @@ def search_restroom(request):
 
 
 # The page for adding new restroom to our database
+@login_required(login_url="login")
 def add_restroom(request, r_id):
     if request.method == "POST":
         f = AddRestroom(request.POST)
@@ -91,6 +95,7 @@ def add_restroom(request, r_id):
 
 
 # The page for showing one restroom details
+@login_required(login_url="login")
 def restroom_detail(request, r_id):
     """Show a single restroom"""
     querySet = Restroom.objects.filter(id=r_id)
