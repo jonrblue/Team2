@@ -1,6 +1,6 @@
 from naturescall.models import Restroom
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from .forms import LocationForm
 from .forms import AddRestroom
 import requests
@@ -108,6 +108,8 @@ def restroom_detail(request, r_id):
         addr = str(yelp_data["location"]["display_address"])
         res["addr"] = addr.translate(str.maketrans("", "", "[]'"))
         res["desc"] = querySet.values()[0]["Description"]
+    else:
+        raise Http404("Restroom does not exist")
 
     context = {"res": res}
     return render(request, "naturescall/restroom_detail.html", context)
