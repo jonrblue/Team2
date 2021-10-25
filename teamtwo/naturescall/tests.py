@@ -1,7 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from .models import Restroom
-from .views import search
 import os
 
 api_key = str(os.getenv("yelp_key"))
@@ -36,22 +35,10 @@ class ViewTests(TestCase):
                                            args=(1,)))
         self.assertEqual(response.status_code, 404)
 
-    # def test_invalid_restroom_desc(self):
-    #     """
-    #     If a restroom's description is under 10 characters,
-    #     it should fail to be added to the database
-    #     """
-    #     desc = "9LTRDESCR"
-    #     yelp_id = "E6h-sMLmF86cuituw5zYxw"
-    #     rr1 = create_restroom(yelp_id, desc)
-    #     response = self.client.get(reverse('naturescall:restroom_detail',
-    #                                        args=(1,)))
-    #     self.assertEqual(response.status_code, 404)
-
-    def test_one_restroom(self):
+    def test_one_restroom_via_create(self):
         """
-        Once a restroom is added, it should be reachable via the
-        restroom_detail link
+        Once a restroom is added using create, it should be
+        reachable via the restroom_detail link
         """
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
@@ -60,6 +47,37 @@ class ViewTests(TestCase):
                                            args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['res']['desc'], desc)
+
+    def test_one_restroom_via_form(self):
+        """
+        Once a restroom is added via our form, it should yield
+        a successful redirect
+        """
+        c = Client()
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        response = c.post(reverse('naturescall:add_restroom', args=(1,)),
+                          data={'yelp_id': yelp_id,
+                                'Description': desc})
+        response2 = c.get(reverse('naturescall:restroom_detail',
+                                  args=(1,)))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response2.status_code, 200)
+
+    def test_one_restroom_invalid_form(self):
+        """
+        A restroom with an invalid description should not be added
+        """
+        c = Client()
+        desc = "9LTRDESCR"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        response = c.post(reverse('naturescall:add_restroom', args=(1,)),
+                          data={'yelp_id': yelp_id,
+                                'Description': desc})
+        response2 = c.get(reverse('naturescall:restroom_detail',
+                                  args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response2.status_code, 404)
 
     def test_restroom_invalid_search(self):
         """
@@ -96,14 +114,3 @@ class ViewTests(TestCase):
                           data={'location': "nyu tandon"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(str(response.content).count("Add Restroom"), 19)
-
-# class ViewHelperFunctionTests(TestCase):
-#
-#     def test_bad_yelp_input(self):
-#         """
-#         was_published_recently() returns False for questions whose pub_date
-#         is in the future.
-#         """
-#         time = timezone.now() + datetime.timedelta(days=30)
-#         future_question = Question(pub_date=time)
-#         self.assertIs(future_question.was_published_recently(), False)
