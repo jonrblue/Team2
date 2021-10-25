@@ -36,13 +36,13 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "naturescall.apps.NaturescallConfig",
+    "accounts.apps.AccountsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "accounts.apps.AccountsConfig",
 ]
 
 MIDDLEWARE = [
@@ -126,11 +126,19 @@ USE_TZ = True
 STATIC_URL = "/static/"
 LOGIN_REDIRECT_URL = "naturescall:index"
 LOGOUT_REDIRECT_URL = "naturescall:index"
-
+LOGIN_URL = "/naturescall/accounts/login"
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# email verification settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = str(os.getenv("EMAIL_USER"))
+EMAIL_HOST_PASSWORD = str(os.getenv("EMAIL_PASSWORD"))
+EMAIL_PORT = 587
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
