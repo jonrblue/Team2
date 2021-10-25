@@ -95,7 +95,6 @@ def add_restroom(request, r_id):
 
 
 # The page for showing one restroom details
-@login_required(login_url="login")
 def restroom_detail(request, r_id):
     """Show a single restroom"""
     querySet = Restroom.objects.filter(id=r_id)
