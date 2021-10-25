@@ -62,7 +62,7 @@ def activate(request, uidb64, token):
         # login(request, user)
         messages.success(
             request,
-            "Thank you for your email confirmation. Now you can login your account.",
+            "Thank you for your email confirmation. Now you can login to your account.",
         )
         return HttpResponseRedirect(reverse("naturescall:index"))
     else:
