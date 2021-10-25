@@ -37,10 +37,11 @@ def index(request):
 def search_restroom(request):
     context = {}
     form = LocationForm(request.POST or None)
-    location = request.POST["location"]
+    #location = request.POST["location"]
+    location = request.POST['searched']
+
 
     k = search(api_key, '"restroom","food","public"', location, 20)
-
     data = []
 
     if not k.get("error"):
@@ -70,6 +71,7 @@ def search_restroom(request):
     context["form"] = form
     context["location"] = location
     context["data"] = data
+
     return render(request, "naturescall/search_restroom.html", context)
 
 
