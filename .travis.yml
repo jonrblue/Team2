@@ -8,7 +8,7 @@ branches:
   - main
   - travis
 before_script:
-  - python manage.py migrate
+  - python teamtwo/manage.py migrate
 script:
   - black .
   - flake8
