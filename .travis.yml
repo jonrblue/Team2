@@ -8,10 +8,11 @@ branches:
   - main
   - travis
 before_script:
-  - python teamtwo/manage.py migrate
+  - cd ./teamtwo
+  - python manage.py migrate
 script:
   - black .
   - flake8
-  - coverage run --source='./teamtwo/' manage.py test naturescall
+  - coverage run --source='.' manage.py test naturescall
 after_success:
   - coveralls
