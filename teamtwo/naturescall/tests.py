@@ -36,17 +36,17 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 404)
 
-    # def test_one_restroom_via_create(self):
-    #     """
-    #     Once a restroom is added using create, it should be
-    #     reachable via the restroom_detail link
-    #     """
-    #     desc = "TEST DESCRIPTION"
-    #     yelp_id = "E6h-sMLmF86cuituw5zYxw"
-    #     create_restroom(yelp_id, desc)
-    #     response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.context["res"]["desc"], desc)
+    def test_one_restroom_via_create(self):
+        """
+        Once a restroom is added using create, it should be
+        reachable via the restroom_detail link
+        """
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        create_restroom(yelp_id, desc)
+        response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["res"]["desc"], desc)
 
     def test_one_restroom_via_form_not_logged_in(self):
         """
@@ -158,14 +158,14 @@ class ViewTests(TestCase):
         response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 302)
 
-    # def test_get_request_add_restroom_logged_in(self):
-    #     """
-    #     A get request to the add_restroom page should yield a
-    #     valid response if the user is logged in
-    #     """
-    #     c = Client()
-    #     user = User.objects.create_user("Jon", "jon@email.com")
-    #     c.force_login(user=user)
-    #     yelp_id = "E6h-sMLmF86cuituw5zYxw"
-    #     response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
-    #     self.assertEqual(response.status_code, 200)
+    def test_get_request_add_restroom_logged_in(self):
+        """
+        A get request to the add_restroom page should yield a
+        valid response if the user is logged in
+        """
+        c = Client()
+        user = User.objects.create_user("Jon", "jon@email.com")
+        c.force_login(user=user)
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        self.assertEqual(response.status_code, 200)
