@@ -6,10 +6,14 @@ branches:
   only:
   - develop
   - main
-  - updated_tests
+  - travis
+before_script:
+  - cd ./teamtwo
+  - python manage.py makemigrations
+  - python manage.py migrate
 script:
   - black .
-  - flake8
+  - flake8 --max-line-length=92
   - coverage run --source='.' manage.py test naturescall
 after_success:
   - coveralls
