@@ -82,6 +82,7 @@ class ViewTests(TestCase):
         response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, desc)
 
     def test_one_restroom_invalid_form_logged_in(self):
         """
@@ -145,4 +146,26 @@ class ViewTests(TestCase):
         """
         c = Client()
         response = c.get(reverse("accounts:signup"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_request_add_restroom_not_logged_in(self):
+        """
+        A get request to the add_restroom page should yield a
+        redirect if the user is not logged in
+        """
+        c = Client()
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        self.assertEqual(response.status_code, 302)
+
+    def test_get_request_add_restroom_logged_in(self):
+        """
+        A get request to the add_restroom page should yield a
+        valid response if the user is logged in
+        """
+        c = Client()
+        user = User.objects.create_user("Jon", "jon@email.com")
+        c.force_login(user=user)
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 200)
