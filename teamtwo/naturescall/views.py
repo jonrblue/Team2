@@ -37,9 +37,8 @@ def index(request):
 def search_restroom(request):
     context = {}
     form = LocationForm(request.POST or None)
-    #location = request.POST["location"]
-    location = request.POST['searched']
-
+    # location = request.POST["location"]
+    location = request.POST["searched"]
 
     k = search(api_key, '"restroom","food","public"', location, 20)
     data = []
@@ -49,13 +48,10 @@ def search_restroom(request):
         # Sort by distance
         data.sort(key=getDistance)
 
-    print("The returned json obj is: \n {}".format(data))
-    print("End of returned json obj \n")
-
     # Load rating data from our database
     for restroom in data:
         restroom["distance"] = int(restroom["distance"])
-        print(restroom["distance"])
+        # print(restroom["distance"])
         r_id = restroom["id"]
         querySet = Restroom.objects.filter(yelp_id=r_id)
         if not querySet:
@@ -64,7 +60,7 @@ def search_restroom(request):
         else:
             restroom["our_rating"] = querySet.values()[0]["rating"]
             restroom["db_id"] = querySet.values()[0]["id"]
-            print(restroom["db_id"])
+            # print(restroom["db_id"])
         addr = str(restroom["location"]["display_address"])
         restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
 
