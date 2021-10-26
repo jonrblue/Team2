@@ -37,9 +37,8 @@ def index(request):
 def search_restroom(request):
     context = {}
     form = LocationForm(request.POST or None)
-    #location = request.POST["location"]
-    location = request.POST['searched']
-
+    # location = request.POST["location"]
+    location = request.POST["searched"]
 
     k = search(api_key, '"restroom","food","public"', location, 20)
     data = []
