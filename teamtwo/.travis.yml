@@ -1,6 +1,11 @@
 language: python
 install:
   - pip install -r requirements.txt
+branches:
+  only:
+  - develop
+  - main
+  - updated_tests
 script:
   - black .
   - flake8
