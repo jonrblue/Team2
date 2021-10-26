@@ -6,7 +6,7 @@ branches:
   only:
   - develop
   - main
-  - updated_tests
+  - travis
 script:
   - black .
   - flake8
