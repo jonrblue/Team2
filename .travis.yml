@@ -12,6 +12,6 @@ before_script:
 script:
   - black .
   - flake8
-  - coverage run --source='.' manage.py test naturescall
+  - coverage run --source='./teamtwo/' manage.py test naturescall
 after_success:
   - coveralls
