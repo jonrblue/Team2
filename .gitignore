@@ -7,6 +7,9 @@ db.sqlite3
 media
 .DS_Store
 
+# migration files #
+0*.py
+
 # Backup files #
 *.bak
 
