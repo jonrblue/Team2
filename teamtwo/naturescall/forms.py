@@ -14,15 +14,15 @@ class AddRestroom(forms.ModelForm):
         model = Restroom
         fields = [
             "yelp_id",
-            "Description",
-            "Accessible",
-            "FamilyFriendly",
-            "TransactionRequired",
+            "description",
+            "accessible",
+            "family_friendly",
+            "transaction_not_required",
         ]
 
     def clean(self):
         super(AddRestroom, self).clean()
-        text = self.cleaned_data.get("Description")
+        text = self.cleaned_data.get("description")
         if len(text) < 10:
             self._errors["text"] = self.error_class(
                 ["Description Should Contain a minimum of 10 characters"]

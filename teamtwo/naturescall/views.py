@@ -58,7 +58,7 @@ def search_restroom(request):
             restroom["our_rating"] = "no rating"
             restroom["db_id"] = ""
         else:
-            restroom["our_rating"] = querySet.values()[0]["rating"]
+            # restroom["our_rating"] = querySet.values()[0]["rating"]
             restroom["db_id"] = querySet.values()[0]["id"]
             # print(restroom["db_id"])
         addr = str(restroom["location"]["display_address"])
@@ -101,15 +101,17 @@ def restroom_detail(request, r_id):
         yelp_id = querySet.values()[0]["yelp_id"]
         yelp_data = get_business(api_key, yelp_id)
         yelp_data["db_id"] = r_id
-        yelp_data["rating"] = querySet.values()[0]["rating"]
-        yelp_data["Accessible"] = querySet.values()[0]["Accessible"]
-        yelp_data["FamilyFriendly"] = querySet.values()[0]["FamilyFriendly"]
-        yelp_data["TransactionRequired"] = querySet.values()[0]["TransactionRequired"]
+        # yelp_data["rating"] = querySet.values()[0]["rating"]
+        yelp_data["accessible"] = querySet.values()[0]["accessible"]
+        yelp_data["family_friendly"] = querySet.values()[0]["family_friendly"]
+        yelp_data["transaction_not_required"] = querySet.values()[0][
+            "transaction_not_required"
+        ]
 
         res["yelp_data"] = yelp_data
         addr = str(yelp_data["location"]["display_address"])
         res["addr"] = addr.translate(str.maketrans("", "", "[]'"))
-        res["desc"] = querySet.values()[0]["Description"]
+        res["desc"] = querySet.values()[0]["description"]
     else:
         raise Http404("Restroom does not exist")
 
