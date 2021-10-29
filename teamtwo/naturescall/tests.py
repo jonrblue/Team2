@@ -16,7 +16,7 @@ def create_restroom(yelp_id, desc):
     Create a restroom with the given parameters. Other parameters are
     left at their default values
     """
-    return Restroom.objects.create(yelp_id=yelp_id, Description=desc)
+    return Restroom.objects.create(yelp_id=yelp_id, description=desc)
 
 
 class ViewTests(TestCase):
@@ -77,7 +77,7 @@ class ViewTests(TestCase):
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         response = c.post(
             reverse("naturescall:add_restroom", args=(1,)),
-            data={"yelp_id": yelp_id, "Description": desc},
+            data={"yelp_id": yelp_id, "description": desc},
         )
         response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
@@ -95,7 +95,7 @@ class ViewTests(TestCase):
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         response = c.post(
             reverse("naturescall:add_restroom", args=(1,)),
-            data={"yelp_id": yelp_id, "Description": desc},
+            data={"yelp_id": yelp_id, "description": desc},
         )
         response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
