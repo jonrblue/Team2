@@ -160,3 +160,42 @@ class ViewTests(TestCase):
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 200)
+
+    def test_account_creation_valid_form(self):
+        """
+        A valid form should yield a redirect upon submission and
+        add a user to the database
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={"username": "test_user",
+                  "email": "test_user@email.com",
+                  "first_name": "test",
+                  "last_name": "user",
+                  "password1": "BDbdKDwpSt",
+                  "password2": "BDbdKDwpSt"})
+        all_users = User.objects.filter(id=1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(all_users), 1)
+
+    def test_account_creation_invalid_form(self):
+        """
+        An invalid form should yield an error upon submission
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={"username": "test_user",
+                  "email": "test_user@email.com",
+                  "first_name": "test",
+                  "last_name": "user",
+                  "password1": "BDbdKDwpSt",
+                  "password2": "BDbdKDwpStX"})
+        self.assertContains(response, "Unsuccessful registration. Invalid information.")
+
+    def test_invalid_verification_link(self):
+        """
+        An invalid verification request should yield a redirect
+        """
+        response = self.client.get(reverse("accounts:activate", args=(1, 1)))
+        self.assertEqual(response.status_code, 302)
+
