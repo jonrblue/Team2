@@ -24,13 +24,13 @@
       <div class="card-body">
         <h2 class="card-title">
           {{res.yelp_data.name}}
-          {% if res.yelp_data.Accessible %}
+          {% if res.yelp_data.accessible %}
           <span class="badge badge-secondary bg-success text-white">Accessible</span>
           {% endif %}
-          {% if res.yelp_data.FamilyFriendly  %}
+          {% if res.yelp_data.family_friendly  %}
           <span class="badge badge-secondary bg-primary text-white" >Family Friendly</span>
           {% endif %}
-          {% if res.yelp_data.TransactionRequired  %}
+          {% if res.yelp_data.transaction_not_required  %}
           <span class="badge badge-secondary bg-warning text-dark">Transaction Not Required</span>
           {% endif %}
         </h2>

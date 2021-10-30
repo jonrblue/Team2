@@ -47,7 +47,7 @@ def search_restroom(request):
         data = k["businesses"]
         # Sort by distance
         data.sort(key=getDistance)
-
+    print(data)
     # Load rating data from our database
     for restroom in data:
         restroom["distance"] = int(restroom["distance"])
