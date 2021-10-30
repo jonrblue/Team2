@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Restroom
@@ -54,14 +54,13 @@ class ViewTests(TestCase):
         should result in a redirect to the login page. That restroom's
         page then should not exist.
         """
-        c = Client()
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
             data={"yelp_id": yelp_id, "Description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response2.status_code, 404)
 
@@ -70,16 +69,15 @@ class ViewTests(TestCase):
         A logged in user should be able to add a restroom via the form.
         Once added, the restroom page should be accessible.
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
             data={"yelp_id": yelp_id, "description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response2.status_code, 200)
         self.assertContains(response2, desc)
@@ -88,16 +86,15 @@ class ViewTests(TestCase):
         """
         A restroom with an invalid description should not be added
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         desc = "9LTRDESCR"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
             data={"yelp_id": yelp_id, "description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response2.status_code, 404)
 
@@ -106,8 +103,7 @@ class ViewTests(TestCase):
         A search with an invalid search string should yield no results
         but should return a valid webpage
         """
-        c = Client()
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "szzzzz"}
         )
         self.assertEqual(response.status_code, 200)
@@ -118,8 +114,7 @@ class ViewTests(TestCase):
         A search with a valid search string with an empty database
         should return a valid webpage with 20 "Add Restroom" results
         """
-        c = Client()
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "nyu tandon"}
         )
         self.assertEqual(response.status_code, 200)
@@ -130,11 +125,10 @@ class ViewTests(TestCase):
         A search with a valid search string with a database with one element
         should return a valid webpage with 19 "Add Restroom" results
         """
-        c = Client()
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         create_restroom(yelp_id, desc)
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "nyu tandon"}
         )
         self.assertEqual(response.status_code, 200)
@@ -144,8 +138,7 @@ class ViewTests(TestCase):
         """
         A get request to the signup page should yield a valid response
         """
-        c = Client()
-        response = c.get(reverse("accounts:signup"))
+        response = self.client.get(reverse("accounts:signup"))
         self.assertEqual(response.status_code, 200)
 
     def test_get_request_add_restroom_not_logged_in(self):
@@ -153,9 +146,8 @@ class ViewTests(TestCase):
         A get request to the add_restroom page should yield a
         redirect if the user is not logged in
         """
-        c = Client()
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 302)
 
     def test_get_request_add_restroom_logged_in(self):
@@ -163,9 +155,47 @@ class ViewTests(TestCase):
         A get request to the add_restroom page should yield a
         valid response if the user is logged in
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 200)
+
+    def test_account_creation_valid_form(self):
+        """
+        A valid form should yield a redirect upon submission and
+        add a user to the database
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={"username": "test_user",
+                  "email": "test_user@email.com",
+                  "first_name": "test",
+                  "last_name": "user",
+                  "password1": "BDbdKDwpSt",
+                  "password2": "BDbdKDwpSt"})
+        all_users = User.objects.filter(id=1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(all_users), 1)
+
+    def test_account_creation_invalid_form(self):
+        """
+        An invalid form should yield an error upon submission
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={"username": "test_user",
+                  "email": "test_user@email.com",
+                  "first_name": "test",
+                  "last_name": "user",
+                  "password1": "BDbdKDwpSt",
+                  "password2": "BDbdKDwpStX"})
+        self.assertContains(response, "Unsuccessful registration. Invalid information.")
+
+    def test_invalid_verification_link(self):
+        """
+        An invalid verification request should yield a redirect
+        """
+        response = self.client.get(reverse("accounts:activate", args=(1, 1)))
+        self.assertEqual(response.status_code, 302)
+
