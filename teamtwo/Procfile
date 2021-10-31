@@ -1,2 +1,2 @@
 web: gunicorn teamtwo.wsgi
-release: python3 manage.py migrate
+
