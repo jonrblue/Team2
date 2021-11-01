@@ -71,7 +71,8 @@ def search_restroom(request):
     return render(request, "naturescall/search_restroom.html", context)
 
 
-
+def rate_restroom(request):
+    return render(request, "naturescall/rate_restroom.html")
 
 
 
