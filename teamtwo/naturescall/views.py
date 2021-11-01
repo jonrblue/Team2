@@ -2,9 +2,10 @@ from naturescall.models import Restroom
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, Http404
 from .forms import LocationForm
-from .forms import AddRestroom
+from .forms import AddRestroom, AddRating
 import requests
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # import argparse
 # import json
@@ -70,11 +71,20 @@ def search_restroom(request):
 
     return render(request, "naturescall/search_restroom.html", context)
 
-
+@login_required(login_url="login")
 def rate_restroom(request):
-    return render(request, "naturescall/rate_restroom.html")
-
-
+    if request.method == 'POST':
+        r_form = AddRating(request.POST, instance=request.user)
+        if r_form.is_valid():
+            r_form.save()
+            msg= 'Your rating has been saved!'
+            messages.success(request, f'{msg}')
+            return HttpResponseRedirect(reverse("naturescall:index"))
+    else:
+        context = {}
+        form = AddRating()
+        context["form"] = form
+        return render(request, "naturescall/rate_restroom.html", context)
 
 
 # The page for adding new restroom to our database

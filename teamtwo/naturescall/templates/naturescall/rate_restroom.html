@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <h1>welcome to rate restroom</h1>
-  </body>
-</html>
+{% extends  "naturescall/index.html" %}
+<!-- no search bar in the add_res page -->
+{% block form %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<h2>You are entering rating for restroom</h2>
+	<form action="" method="POST">
+		{%csrf_token%}
+		{{form.as_p}}
+		<input class="btn btn-primary" type= "submit" value = "Submit">
+	</form>
+</div>
+{% endblock %}
