@@ -48,7 +48,7 @@ def search_restroom(request):
         data = k["businesses"]
         # Sort by distance
         data.sort(key=getDistance)
-    print(data)
+    #print(data)
     # Load rating data from our database
     for restroom in data:
         restroom["distance"] = int(restroom["distance"])
@@ -121,6 +121,19 @@ def add_restroom(request, r_id):
         return render(request, "naturescall/add_restroom.html", context)
 
 
+def calculate_rating(r_id):
+    querySet = Rating.objects.filter(restroom_id = r_id)
+    print(querySet)
+    if querySet:
+        average_rating = 0
+        for rating in querySet.values():
+            average_rating += rating["rating"]
+        average_rating = average_rating / len(querySet)
+        return round(average_rating, 1)
+    else:
+        return "be to rated"
+
+
 # The page for showing one restroom details
 def restroom_detail(request, r_id):
     """Show a single restroom"""
@@ -130,7 +143,7 @@ def restroom_detail(request, r_id):
         yelp_id = querySet.values()[0]["yelp_id"]
         yelp_data = get_business(api_key, yelp_id)
         yelp_data["db_id"] = r_id
-        # yelp_data["rating"] = querySet.values()[0]["rating"]
+        yelp_data["rating"] = calculate_rating(r_id)
         yelp_data["accessible"] = querySet.values()[0]["accessible"]
         yelp_data["family_friendly"] = querySet.values()[0]["family_friendly"]
         yelp_data["transaction_not_required"] = querySet.values()[0][
