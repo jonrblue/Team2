@@ -1,4 +1,4 @@
-from naturescall.models import Restroom
+from naturescall.models import Restroom, Rating
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, Http404
 from .forms import LocationForm
@@ -84,11 +84,18 @@ def rate_restroom(request, r_id):
             new_entry.user_id = current_user
             new_entry.restroom_id = current_restroom
             new_entry.save()
-            msg = "Your rating has been saved!"
+            msg = "Congratulations, Your rating has been saved!"
             messages.success(request, f"{msg}")
             return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
     else:
-        form = AddRating()
+        #check for redundent rating
+        querySet = Rating.objects.filter(restroom_id=r_id, user_id = current_user)
+        if querySet:
+            msg = "Sorry, You have already rated this restroom!!"
+            messages.success(request, f"{msg}")
+            return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
+
+    form = AddRating()
     context = {"form": form}
     return render(request, "naturescall/rate_restroom.html", context)
 
