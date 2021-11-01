@@ -29,8 +29,13 @@ class AddRestroom(forms.ModelForm):
             )
         return self.cleaned_data
 
+
 # form for rating and commenting a restroom
 class AddRating(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ["rating", "headline", "comment",]
+        fields = [
+            "rating",
+            "headline",
+            "comment",
+        ]

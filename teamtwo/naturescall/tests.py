@@ -168,12 +168,15 @@ class ViewTests(TestCase):
         """
         response = self.client.post(
             reverse("accounts:signup"),
-            data={"username": "test_user",
-                  "email": "test_user@email.com",
-                  "first_name": "test",
-                  "last_name": "user",
-                  "password1": "BDbdKDwpSt",
-                  "password2": "BDbdKDwpSt"})
+            data={
+                "username": "test_user",
+                "email": "test_user@email.com",
+                "first_name": "test",
+                "last_name": "user",
+                "password1": "BDbdKDwpSt",
+                "password2": "BDbdKDwpSt",
+            },
+        )
         all_users = User.objects.filter(id=1)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(len(all_users), 1)
@@ -184,12 +187,15 @@ class ViewTests(TestCase):
         """
         response = self.client.post(
             reverse("accounts:signup"),
-            data={"username": "test_user",
-                  "email": "test_user@email.com",
-                  "first_name": "test",
-                  "last_name": "user",
-                  "password1": "BDbdKDwpSt",
-                  "password2": "BDbdKDwpStX"})
+            data={
+                "username": "test_user",
+                "email": "test_user@email.com",
+                "first_name": "test",
+                "last_name": "user",
+                "password1": "BDbdKDwpSt",
+                "password2": "BDbdKDwpStX",
+            },
+        )
         self.assertContains(response, "Unsuccessful registration. Invalid information.")
 
     def test_invalid_verification_link(self):
@@ -198,4 +204,3 @@ class ViewTests(TestCase):
         """
         response = self.client.get(reverse("accounts:activate", args=(1, 1)))
         self.assertEqual(response.status_code, 302)
-

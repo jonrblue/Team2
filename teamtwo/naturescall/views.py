@@ -1,5 +1,5 @@
 from naturescall.models import Restroom
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, Http404
 from .forms import LocationForm
 from .forms import AddRestroom, AddRating
@@ -71,20 +71,26 @@ def search_restroom(request):
 
     return render(request, "naturescall/search_restroom.html", context)
 
+
 @login_required(login_url="login")
-def rate_restroom(request):
-    if request.method == 'POST':
-        r_form = AddRating(request.POST, instance=request.user)
-        if r_form.is_valid():
-            r_form.save()
-            msg= 'Your rating has been saved!'
-            messages.success(request, f'{msg}')
-            return HttpResponseRedirect(reverse("naturescall:index"))
+def rate_restroom(request, r_id):
+    """Rate a restroom"""
+    current_restroom = get_object_or_404(Restroom, id=r_id)
+    current_user = request.user
+    if request.method == "POST":
+        form = AddRating(data=request.POST)
+        if form.is_valid():
+            new_entry = form.save(commit=False)
+            new_entry.user_id = current_user
+            new_entry.restroom_id = current_restroom
+            new_entry.save()
+            msg = "Your rating has been saved!"
+            messages.success(request, f"{msg}")
+            return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
     else:
-        context = {}
         form = AddRating()
-        context["form"] = form
-        return render(request, "naturescall/rate_restroom.html", context)
+    context = {"form": form}
+    return render(request, "naturescall/rate_restroom.html", context)
 
 
 # The page for adding new restroom to our database
