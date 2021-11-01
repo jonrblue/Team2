@@ -71,6 +71,11 @@ def search_restroom(request):
     return render(request, "naturescall/search_restroom.html", context)
 
 
+
+
+
+
+
 # The page for adding new restroom to our database
 @login_required(login_url="login")
 def add_restroom(request, r_id):
