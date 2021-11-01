@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <h1>Welcome to Profile</h1>
-  </body>
-</html>
+{% block content %}
+<h2>User-Profile</h2>
+<form method="POST" enctype="multipart/form-data">
+	{% csrf_token %}
+	<fieldset class="form-group">
+		{{ u_form.as_p}}
+		{{ p_form.as_p}}
+	</fieldset>
+	<input type="submit" value="Update">
+</form>
+{% endblock %}
