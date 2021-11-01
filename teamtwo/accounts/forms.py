@@ -16,3 +16,8 @@ class SignupForm(UserCreationForm):
             "password1",
             "password2",
         )
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['profilename', 'accessible', 'family_friendly', 'transaction_not_required']

@@ -12,10 +12,9 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.utils.encoding import force_bytes, force_text
 from django.core.mail import EmailMessage
+from .forms import ProfileUpdateForm
 
 # Create your views here.
-
-
 def signup(request):
     if request.method == "POST":
         form = SignupForm(request.POST)
@@ -68,3 +67,7 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, "Activation link is invalid!")
         return HttpResponseRedirect(reverse("naturescall:index"))
+
+def view_profile(request):
+
+    return render(request, "accounts/profile.html")

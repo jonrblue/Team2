@@ -25,9 +25,17 @@
 		    	<a class="nav-link" href="{% url 'login'%}" style="color:DodgerBlue;">Login</a>
 		    </li>
 				{%else%}
+				<!--
 				<li class="nav-item">
 					<a class="navbar-text" style="color:white;">Hi, {{user}}</a>
 				</li>
+				-->
+				<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" style="color:white;" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">Hi, {{user}}</a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{% url 'naturescall:accounts:profile'%}">Profile</a>
+        </div>
+      </li>
 				<li class="nav-item">
 					<a class="nav-link" href="{%url 'logout'%}" style="color:DodgerBlue;">Logout</a>
 				</li>
