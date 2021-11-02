@@ -1,0 +1,34 @@
+{% extends "naturescall/index.html" %}
+{% block content %}
+<div class="container">
+<form method="get">
+	{{ tableFilter.form.as_p }}
+	<input type="submit" />
+</form>
+<h4>Please find your filtered search</h4>
+<table width="900", border="1">
+	<tr>
+		<th><label for='yelp_id'><h3>YelpBusinessID</h3></label></th>
+		<th><label for='id'><h3>DB ID</h3></label></th>
+		<th><label for='Description'><h3>Description</h3></label></th>
+		<th><label for='accessible'><h3>Accessible</h3></label></th>
+		<th><label for='family_friendly'><h3>family_friendly</h3></label></th>
+		<th><label for='transaction_not_required'><h3>transaction_not_required</h3></label></th>
+		<th><label for='address'><h3>Address</h3> </th>
+	</tr>
+	{% for d in data %}
+	<tr>
+		<td align='right'> {{ d.id }} </td>
+		<td align='right'>{{d.db_id}}</td>
+		<td align='right'> {{ d.description }} </td>
+		<td align='right'> {{ d.accessible }} </td>
+		<td align='right'> {{ d.family_friendly }} </td>
+		<td align='right'> {{ d.transaction_not_required }} </td>
+		<td align='right'> {{ d.addr }} </td>
+	</tr>
+	{% endfor %}
+</table>
+</div>
+{% endblock %}
+
+

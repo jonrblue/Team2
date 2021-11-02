@@ -5,6 +5,7 @@ from .forms import LocationForm
 from .forms import AddRestroom
 import requests
 from django.contrib.auth.decorators import login_required
+from .filters import RestroomFilter
 
 # import argparse
 # import json
@@ -27,8 +28,8 @@ BUSINESS_PATH = "/v3/businesses/"
 # The index page
 def index(request):
     context = {}
-    form = LocationForm(request.POST or None)
-    context["form"] = form
+    # form = LocationForm(request.POST or None)
+    # context["form"] = form
     return render(request, "naturescall/index.html", context)
 
 
@@ -36,39 +37,77 @@ def index(request):
 # display the restrooms around the location
 def search_restroom(request):
     context = {}
-    form = LocationForm(request.POST or None)
+    # form = LocationForm(request.POST or None)
     # location = request.POST["location"]
-    location = request.POST["searched"]
+    if request.POST.get("searched") != None:
+        location = request.POST["searched"]
+        tableFilter = RestroomFilter()
+        k = search(api_key, '"restroom","food","public"', location, 20)
+        data = []
+        if not k.get("error"):
+            data = k["businesses"]
+            # Sort by distance
+            data.sort(key=getDistance)
+        # Load rating data from our database
+        for restroom in data:
+            restroom["distance"] = int(restroom["distance"])
+            # print(restroom["distance"])
+            r_id = restroom["id"]
+            querySet = Restroom.objects.filter(yelp_id=r_id)
+            if not querySet:
+                restroom["our_rating"] = "no rating"
+                restroom["db_id"] = ""
+            else:
+                # restroom["our_rating"] = querySet.values()[0]["rating"]
+                restroom["db_id"] = querySet.values()[0]["id"]
+                # print(restroom["db_id"])
+            addr = str(restroom["location"]["display_address"])
+            restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
+        # context["form"] = form
+        context["location"] = location
+        context["data"] = data
+        context["tableFilter"] = tableFilter
+        return render(request, "naturescall/search_restroom.html", context)
+    else:
+        dbRestroom = Restroom.objects.all()
+        tableFilter = RestroomFilter(request.GET, queryset=dbRestroom)
+        data = []
+        for obj in tableFilter.qs:
+            k = get_business(api_key, obj.yelp_id)
+            k["db_id"] = obj.id
+            addr = str(k["location"]["display_address"])
+            k["addr"] = addr.translate(str.maketrans("", "", "[]'"))
+            k["accessible"] = obj.accessible
+            k["family_friendly"] = obj.family_friendly
+            k["transaction_not_required"] = obj.transaction_not_required
+            k["description"] = obj.description
+            data.append(k)
+            print(data)
+        context["tableFilter"] = tableFilter
+        context["data"] = data
+        return render(request, "naturescall/filtered_search.html", context)
 
-    k = search(api_key, '"restroom","food","public"', location, 20)
+
+# Filtered search results-:
+def filter_restroom(request):
+    dbRestroom = Restroom.objects.all()
+    tableFilter = RestroomFilter(request.GET, queryset=dbRestroom)
     data = []
-
-    if not k.get("error"):
-        data = k["businesses"]
-        # Sort by distance
-        data.sort(key=getDistance)
-    print(data)
-    # Load rating data from our database
-    for restroom in data:
-        restroom["distance"] = int(restroom["distance"])
-        # print(restroom["distance"])
-        r_id = restroom["id"]
-        querySet = Restroom.objects.filter(yelp_id=r_id)
-        if not querySet:
-            restroom["our_rating"] = "no rating"
-            restroom["db_id"] = ""
-        else:
-            # restroom["our_rating"] = querySet.values()[0]["rating"]
-            restroom["db_id"] = querySet.values()[0]["id"]
-            # print(restroom["db_id"])
-        addr = str(restroom["location"]["display_address"])
-        restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
-
-    context["form"] = form
-    context["location"] = location
+    for obj in tableFilter.qs:
+        k = get_business(api_key, obj.yelp_id)
+        k["db_id"] = obj.id
+        addr = str(k["location"]["display_address"])
+        k["addr"] = addr.translate(str.maketrans("", "", "[]'"))
+        k["accessible"] = obj.accessible
+        k["family_friendly"] = obj.family_friendly
+        k["transaction_not_required"] = obj.transaction_not_required
+        k["description"] = obj.description
+        data.append(k)
+        print(data)
+    context = {}
+    context["tableFilter"] = tableFilter
     context["data"] = data
-
-    return render(request, "naturescall/search_restroom.html", context)
+    return render(request, "naturescall/filtered_search.html", context)
 
 
 # The page for adding new restroom to our database
