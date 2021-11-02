@@ -48,7 +48,7 @@ def search_restroom(request):
         data = k["businesses"]
         # Sort by distance
         data.sort(key=getDistance)
-    #print(data)
+    # print(data)
     # Load rating data from our database
     for restroom in data:
         restroom["distance"] = int(restroom["distance"])
@@ -88,8 +88,8 @@ def rate_restroom(request, r_id):
             messages.success(request, f"{msg}")
             return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
     else:
-        #check for redundent rating
-        querySet = Rating.objects.filter(restroom_id=r_id, user_id = current_user)
+        # check for redundent rating
+        querySet = Rating.objects.filter(restroom_id=r_id, user_id=current_user)
         if querySet:
             msg = "Sorry, You have already rated this restroom!!"
             messages.success(request, f"{msg}")
@@ -122,7 +122,7 @@ def add_restroom(request, r_id):
 
 
 def calculate_rating(r_id):
-    querySet = Rating.objects.filter(restroom_id = r_id)
+    querySet = Rating.objects.filter(restroom_id=r_id)
     print(querySet)
     if querySet:
         average_rating = 0

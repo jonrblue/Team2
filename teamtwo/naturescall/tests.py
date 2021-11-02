@@ -19,6 +19,7 @@ def create_restroom(yelp_id, desc):
     """
     return Restroom.objects.create(yelp_id=yelp_id, description=desc)
 
+
 class ViewTests(TestCase):
     def test_index(self):
         """
@@ -250,8 +251,13 @@ class ViewTests(TestCase):
         rr = create_restroom(yelp_id, desc)
         user = User.objects.create_user("Jon", "jon@email.com")
         self.client.force_login(user=user)
-        Rating.objects.create(restroom_id=rr, user_id=user, rating="4",
-                              headline="headline1", comment="comment1")
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user,
+            rating="4",
+            headline="headline1",
+            comment="comment1",
+        )
         response = self.client.get(reverse("naturescall:rate_restroom", args=(1,)))
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertEqual(response.status_code, 302)
@@ -269,11 +275,21 @@ class ViewTests(TestCase):
         user1 = User.objects.create_user("Jon1", "jon1@email.com")
         user2 = User.objects.create_user("Jon2", "jon2@email.com")
         self.client.force_login(user=user1)
-        Rating.objects.create(restroom_id=rr, user_id=user1, rating="1",
-                              headline="headline1", comment="comment1")
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user1,
+            rating="1",
+            headline="headline1",
+            comment="comment1",
+        )
         self.client.force_login(user=user2)
-        Rating.objects.create(restroom_id=rr, user_id=user2, rating="4",
-                              headline="headline2", comment="comment2")
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user2,
+            rating="4",
+            headline="headline2",
+            comment="comment2",
+        )
         response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Rating: 2.5")
