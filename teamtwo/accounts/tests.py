@@ -3,7 +3,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from .models import Profile
+
 # Create your tests here.
+
 
 class ProfileTests(TestCase):
     def test_profile_normal_access(self):
@@ -26,10 +28,10 @@ class ProfileTests(TestCase):
             reverse("accounts:profile"),
             data={
                 "email": "Hao@gmail.com",
-                "profilename" : "Howard",
-                "accessible" : "True",
+                "profilename": "Howard",
+                "accessible": "True",
                 "family_friendly": "False",
-                "transaction_not_required":"False",
+                "transaction_not_required": "False",
             },
         )
         self.assertEqual(response.status_code, 302)

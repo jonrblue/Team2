@@ -232,9 +232,7 @@ class ViewTests(TestCase):
         response = self.client.post(
             reverse("naturescall:rate_restroom", args=(1,)),
             data={
-                "rating": "4",
-                "headline": "headline1",
-                "comment": "comment1",
+                "rating": "4", "headline": "headline1", "comment": "comment1",
             },
         )
         self.assertEqual(response.status_code, 302)
