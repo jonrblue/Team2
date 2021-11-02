@@ -1,10 +1,11 @@
 gunicorn
-django-heroku
+django - heroku
 requests
-python-dotenv
+python - dotenv
 black
 flake8
 coverage
 six
 coveralls
 django_filter
+

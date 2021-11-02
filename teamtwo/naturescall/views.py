@@ -1,11 +1,12 @@
-from naturescall.models import Restroom
-from django.shortcuts import render
+from naturescall.models import Restroom, Rating
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, Http404
-from .forms import LocationForm
-from .forms import AddRestroom
+#from .forms import LocationForm
+from .forms import AddRestroom, AddRating
 import requests
 from django.contrib.auth.decorators import login_required
 from .filters import RestroomFilter
+from django.contrib import messages
 
 # import argparse
 # import json
@@ -39,7 +40,7 @@ def search_restroom(request):
     context = {}
     # form = LocationForm(request.POST or None)
     # location = request.POST["location"]
-    if request.POST.get("searched") != None:
+    if request.POST.get("searched") is not None:
         location = request.POST["searched"]
         tableFilter = RestroomFilter()
         k = search(api_key, '"restroom","food","public"', location, 20)
@@ -110,6 +111,34 @@ def filter_restroom(request):
     return render(request, "naturescall/filtered_search.html", context)
 
 
+@login_required(login_url="login")
+def rate_restroom(request, r_id):
+    """Rate a restroom"""
+    current_restroom = get_object_or_404(Restroom, id=r_id)
+    current_user = request.user
+    if request.method == "POST":
+        form = AddRating(data=request.POST)
+        if form.is_valid():
+            new_entry = form.save(commit=False)
+            new_entry.user_id = current_user
+            new_entry.restroom_id = current_restroom
+            new_entry.save()
+            msg = "Congratulations, Your rating has been saved!"
+            messages.success(request, f"{msg}")
+            return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
+    else:
+        # check for redundent rating
+        querySet = Rating.objects.filter(restroom_id=r_id, user_id=current_user)
+        if querySet:
+            msg = "Sorry, You have already rated this restroom!!"
+            messages.success(request, f"{msg}")
+            return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
+
+    form = AddRating()
+    context = {"form": form}
+    return render(request, "naturescall/rate_restroom.html", context)
+
+
 # The page for adding new restroom to our database
 @login_required(login_url="login")
 def add_restroom(request, r_id):
@@ -131,6 +160,19 @@ def add_restroom(request, r_id):
         return render(request, "naturescall/add_restroom.html", context)
 
 
+def calculate_rating(r_id):
+    querySet = Rating.objects.filter(restroom_id=r_id)
+    print(querySet)
+    if querySet:
+        average_rating = 0
+        for rating in querySet.values():
+            average_rating += rating["rating"]
+        average_rating = average_rating / len(querySet)
+        return round(average_rating, 1)
+    else:
+        return "be to rated"
+
+
 # The page for showing one restroom details
 def restroom_detail(request, r_id):
     """Show a single restroom"""
@@ -140,7 +182,7 @@ def restroom_detail(request, r_id):
         yelp_id = querySet.values()[0]["yelp_id"]
         yelp_data = get_business(api_key, yelp_id)
         yelp_data["db_id"] = r_id
-        # yelp_data["rating"] = querySet.values()[0]["rating"]
+        yelp_data["rating"] = calculate_rating(r_id)
         yelp_data["accessible"] = querySet.values()[0]["accessible"]
         yelp_data["family_friendly"] = querySet.values()[0]["family_friendly"]
         yelp_data["transaction_not_required"] = querySet.values()[0][
