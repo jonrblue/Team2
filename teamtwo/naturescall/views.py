@@ -47,11 +47,9 @@ def search_restroom(request):
         data = k["businesses"]
         # Sort by distance
         data.sort(key=getDistance)
-    print(data)
     # Load rating data from our database
     for restroom in data:
         restroom["distance"] = int(restroom["distance"])
-        # print(restroom["distance"])
         r_id = restroom["id"]
         querySet = Restroom.objects.filter(yelp_id=r_id)
         if not querySet:
@@ -60,7 +58,6 @@ def search_restroom(request):
         else:
             # restroom["our_rating"] = querySet.values()[0]["rating"]
             restroom["db_id"] = querySet.values()[0]["id"]
-            # print(restroom["db_id"])
         addr = str(restroom["location"]["display_address"])
         restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
 
