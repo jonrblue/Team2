@@ -1,5 +1,5 @@
 import django_filters
-from .models import *
+from .models import Restroom
 from django_filters.widgets import BooleanWidget
 
 

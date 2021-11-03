@@ -1,34 +1,57 @@
 {% extends "naturescall/index.html" %}
 {% block content %}
-<div class="container">
-<form method="get">
-	{{ tableFilter.form.as_p }}
-	<input type="submit" />
+<div class="container-fluid">
+	<p>
+	<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Select filters</a>
+	</p>
+	<div class="collapse" id="collapseExample">
+		<div class="card card-body">
+			<form class="form-inline my-2 my-lg-0" method="GET" enctype="multipart/form-data">
+				{% csrf_token %}
+				<fieldset class="form-group">
+					<input class="form-control mr-sm-2" type="search" placeholder="Search Location" name = "filtered" required="required">
+					{{ tableFilter.form.as_p }}
+				</fieldset>
+				<button href="{% url 'naturescall:filter_restroom'%}" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+		</div>
+	</div>
+
 </form>
-<h4>Please find your filtered search</h4>
-<table width="900", border="1">
-	<tr>
-		<th><label for='yelp_id'><h3>YelpBusinessID</h3></label></th>
-		<th><label for='id'><h3>DB ID</h3></label></th>
-		<th><label for='Description'><h3>Description</h3></label></th>
-		<th><label for='accessible'><h3>Accessible</h3></label></th>
-		<th><label for='family_friendly'><h3>family_friendly</h3></label></th>
-		<th><label for='transaction_not_required'><h3>transaction_not_required</h3></label></th>
-		<th><label for='address'><h3>Address</h3> </th>
-	</tr>
-	{% for d in data %}
-	<tr>
-		<td align='right'> {{ d.id }} </td>
-		<td align='right'>{{d.db_id}}</td>
-		<td align='right'> {{ d.description }} </td>
-		<td align='right'> {{ d.accessible }} </td>
-		<td align='right'> {{ d.family_friendly }} </td>
-		<td align='right'> {{ d.transaction_not_required }} </td>
-		<td align='right'> {{ d.addr }} </td>
-	</tr>
+	{% if data %}
+	<h4>Please find your filtered search</h4>
+	{% for d in data%}
+	<div class="card" style="width: 30rem;">
+		<img class="card-img-top" src={{d.image_url}} alt="Card image cap" style= "width:100%; height:15vw; object-fit: cover;">
+		<div class="card-body">
+			<h5 class="card-title">{{d.name}}</h5>
+			<p class="card-text">{{d.addr}}</p>
+			<p class="card-text" style="color:DodgerBlue;">{{d.distance}} meters away</p>
+			<a href="{% url 'naturescall:restroom_detail' d.db_id %}" class="btn btn-success">Show Details</a>
+		</div>
+	</div>
 	{% endfor %}
-</table>
+	{% endif %}
+	{% if data1 %}
+	<h4> Unfiltered Result </h4>
+	{% for d in data1%}
+	<div class="card" style="width: 30rem;">
+		<img class="card-img-top" src={{d.image_url}} alt="Card image cap" style= "width:100%; height:15vw; object-fit: cover;">
+		<div class="card-body">
+			<h5 class="card-title">{{d.name}}</h5>
+			<p class="card-text">{{d.addr}}</p>
+			<p class="card-text" style="color:DodgerBlue;">{{d.distance}} meters away</p>
+			{% if d.db_id %}
+			<a href="{% url 'naturescall:restroom_detail' d.db_id %}" class="btn btn-success">Show Details</a>
+			{% else %}
+			<a href="{% url 'naturescall:add_restroom' d.id %}" class="btn btn-info">Add Restroom</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+	{% else %}
+	<h3>Location Not Found</h3>
+	{% endif %}
 </div>
 {% endblock %}
-
 

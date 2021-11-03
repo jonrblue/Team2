@@ -15,6 +15,7 @@ from django.core.mail import EmailMessage
 from .forms import ProfileUpdateForm, UserUpdateForm
 from django.contrib.auth.decorators import login_required
 
+
 # Create your views here.
 def signup(request):
     if request.method == "POST":

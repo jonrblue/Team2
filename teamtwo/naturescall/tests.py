@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from .models import Restroom, Rating
+from .filters import RestroomFilter
 import os
 
 api_key = str(os.getenv("yelp_key"))
@@ -205,8 +206,6 @@ class ViewTests(TestCase):
         """
         response = self.client.get(reverse("accounts:activate", args=(1, 1)))
         self.assertEqual(response.status_code, 302)
-<<<<<<< HEAD
-=======
 
     def test_get_rating_one_restroom(self):
         """
@@ -234,7 +233,9 @@ class ViewTests(TestCase):
         response = self.client.post(
             reverse("naturescall:rate_restroom", args=(1,)),
             data={
-                "rating": "4", "headline": "headline1", "comment": "comment1",
+                "rating": "4",
+                "headline": "headline1",
+                "comment": "comment1",
             },
         )
         self.assertEqual(response.status_code, 302)
@@ -293,4 +294,71 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Rating: 2.5")
->>>>>>> 747db687a6e666591a4300be3c15c677a6a3dc3d
+
+    def test_restroom_filter(self):
+        """to check RestroomFilter is retrieving correct restroom"""
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        desc = "TEST Accessibile= true"
+        r1 = Restroom.objects.create(
+            yelp_id=yelp_id, description=desc, accessible="True"
+        )
+        qs = Restroom.objects.all()
+        data = {
+            "accessible": "True",
+            "family_friendly": "False",
+            "transaction_not_required": "False",
+        }
+        f = RestroomFilter(data, queryset=qs)
+        self.assertEqual(f.qs[0], r1)
+
+    def test_filter_search_restroom(self):
+        """to check success response of GET request from search_restroom page"""
+        response = self.client.get(
+            reverse("naturescall:search_restroom"),
+            data={
+                "filtered": "nyu tandon",
+                "accessible": "False",
+                "family_friendly": "False",
+                "transaction_not_required": "False",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["data"], [])
+
+    def test_result_filter_restroom(self):
+        """to check sucess reponse of GET request from filter_restroom page"""
+        response = self.client.get(
+            reverse("naturescall:filter_restroom"), data={"filtered": "nyu tandon"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["data"], [])
+
+    def test_unfiltered_restroom_result(self):
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        desc = "TEST Accessibile= true"
+        Restroom.objects.create(yelp_id=yelp_id, description=desc, accessible="True")
+        data = {
+            "filtered": "Tandon",
+            "accessible": "True",
+            "family_friendly": "False",
+            "transaction_not_required": "False",
+        }
+        response = self.client.get(reverse("naturescall:filter_restroom"), data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["data"]), 1)
+        self.assertEqual(len(response.context["data1"]), 19)
+
+    def test_unfiltered_from_search_restroom(self):
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        desc = "TEST Accessibile= true"
+        Restroom.objects.create(yelp_id=yelp_id, description=desc, accessible="True")
+        data = {
+            "filtered": "Tandon",
+            "accessible": "True",
+            "family_friendly": "False",
+            "transaction_not_required": "False",
+        }
+        response = self.client.get(reverse("naturescall:search_restroom"), data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["data"]), 1)
+        self.assertEqual(len(response.context["data1"]), 19)
