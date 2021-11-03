@@ -1,4 +1,1 @@
-release: python manage.py migrate naturescall zero
-release: python manage.py migrate accounts zero
-release: python manage.py migrate
 web: gunicorn teamtwo.wsgi
