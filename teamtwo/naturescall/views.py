@@ -1,10 +1,12 @@
 from naturescall.models import Restroom, Rating
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, Http404
-from .forms import LocationForm
+
+# from .forms import LocationForm
 from .forms import AddRestroom, AddRating
 import requests
 from django.contrib.auth.decorators import login_required
+from .filters import RestroomFilter
 from django.contrib import messages
 
 # import argparse
@@ -28,8 +30,8 @@ BUSINESS_PATH = "/v3/businesses/"
 # The index page
 def index(request):
     context = {}
-    form = LocationForm(request.POST or None)
-    context["form"] = form
+    # form = LocationForm(request.POST or None)
+    # context["form"] = form
     return render(request, "naturescall/index.html", context)
 
 
@@ -37,20 +39,91 @@ def index(request):
 # display the restrooms around the location
 def search_restroom(request):
     context = {}
-    form = LocationForm(request.POST or None)
+    # form = LocationForm(request.POST or None)
     # location = request.POST["location"]
-    location = request.POST["searched"]
+    if request.POST.get("searched") is not None:
+        location = request.POST["searched"]
+        tableFilter = RestroomFilter()
+        k = search(api_key, '"restroom","food","public"', location, 20)
+        data = []
+        if not k.get("error"):
+            data = k["businesses"]
+            # Sort by distance
+            data.sort(key=getDistance)
+        # Load rating data from our database
+        for restroom in data:
+            restroom["distance"] = int(restroom["distance"])
+            # print(restroom["distance"])
+            r_id = restroom["id"]
+            querySet = Restroom.objects.filter(yelp_id=r_id)
+            if not querySet:
+                restroom["our_rating"] = "no rating"
+                restroom["db_id"] = ""
+            else:
+                # restroom["our_rating"] = querySet.values()[0]["rating"]
+                restroom["db_id"] = querySet.values()[0]["id"]
+                # print(restroom["db_id"])
+            addr = str(restroom["location"]["display_address"])
+            restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
+        # context["form"] = form
+        context["location"] = location
+        context["data"] = data
+        context["tableFilter"] = tableFilter
+        return render(request, "naturescall/search_restroom.html", context)
+    else:
+        dbRestroom = Restroom.objects.all()
+        tableFilter = RestroomFilter(request.GET, queryset=dbRestroom)
+        location = request.GET["filtered"]
+        yelp_data = search(api_key, '"restroom","food","public"', location, 20)
+        data = []
+        data1 = []
+        data2 = []
+        if not yelp_data.get("error"):
+            data1 = yelp_data["businesses"]
+            data1.sort(key=getDistance)
+        for restroom in data1:
+            restroom["distance"] = int(restroom["distance"])
+            r_id = restroom["id"]
+            querySet = Restroom.objects.filter(yelp_id=r_id)
+            if not querySet:
+                restroom["our_rating"] = "no rating"
+                restroom["db_id"] = ""
+            else:
+                restroom["db_id"] = querySet.values()[0]["id"]
+                restroom["accessible"] = querySet.values()[0]["accessible"]
+                restroom["family_friendly"] = querySet.values()[0]["family_friendly"]
+                restroom["transaction_not_required"] = querySet.values()[0][
+                    "transaction_not_required"
+                ]
+            addr = str(restroom["location"]["display_address"])
+            restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
+        for obj in tableFilter.qs:
+            for restroom in data1:
+                if restroom["db_id"] == obj.id:
+                    data.append(restroom)
+                    print(data)
+                else:
+                    data2.append(restroom)
+                    print(data2)
+        context["tableFilter"] = tableFilter
+        context["data"] = data
+        context["data1"] = data2
+        return render(request, "naturescall/filtered_search.html", context)
 
-    k = search(api_key, '"restroom","food","public"', location, 20)
+
+# Filtered search results-:
+def filter_restroom(request):
+    dbRestroom = Restroom.objects.all()
+    tableFilter = RestroomFilter(request.GET, queryset=dbRestroom)
+    location = request.GET["filtered"]
+    yelp_data = search(api_key, '"restroom","food","public"', location, 20)
     data = []
-
-    if not k.get("error"):
-        data = k["businesses"]
-        # Sort by distance
-        data.sort(key=getDistance)
-
-    # Load rating data from our database
-    for restroom in data:
+    data1 = []
+    data2 = []
+    if not yelp_data.get("error"):
+        data1 = yelp_data["businesses"]
+        data1.sort(key=getDistance)
+    for restroom in data1:
         restroom["distance"] = int(restroom["distance"])
         r_id = restroom["id"]
         querySet = Restroom.objects.filter(yelp_id=r_id)
@@ -58,16 +131,27 @@ def search_restroom(request):
             restroom["our_rating"] = "no rating"
             restroom["db_id"] = ""
         else:
-            # restroom["our_rating"] = querySet.values()[0]["rating"]
             restroom["db_id"] = querySet.values()[0]["id"]
+            restroom["accessible"] = querySet.values()[0]["accessible"]
+            restroom["family_friendly"] = querySet.values()[0]["family_friendly"]
+            restroom["transaction_not_required"] = querySet.values()[0][
+                "transaction_not_required"
+            ]
         addr = str(restroom["location"]["display_address"])
         restroom["addr"] = addr.translate(str.maketrans("", "", "[]'"))
 
-    context["form"] = form
-    context["location"] = location
+    for obj in tableFilter.qs:
+        for restroom in data1:
+            if restroom["db_id"] == obj.id:
+                data.append(restroom)
+                print(data)
+            else:
+                data2.append(restroom)
+    context = {}
+    context["tableFilter"] = tableFilter
     context["data"] = data
-
-    return render(request, "naturescall/search_restroom.html", context)
+    context["data1"] = data2
+    return render(request, "naturescall/filtered_search.html", context)
 
 
 @login_required(login_url="login")
