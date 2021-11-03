@@ -1,7 +1,8 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Restroom
+from django.contrib.messages import get_messages
+from .models import Restroom, Rating
 import os
 
 api_key = str(os.getenv("yelp_key"))
@@ -16,7 +17,7 @@ def create_restroom(yelp_id, desc):
     Create a restroom with the given parameters. Other parameters are
     left at their default values
     """
-    return Restroom.objects.create(yelp_id=yelp_id, Description=desc)
+    return Restroom.objects.create(yelp_id=yelp_id, description=desc)
 
 
 class ViewTests(TestCase):
@@ -54,14 +55,13 @@ class ViewTests(TestCase):
         should result in a redirect to the login page. That restroom's
         page then should not exist.
         """
-        c = Client()
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
             data={"yelp_id": yelp_id, "Description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response2.status_code, 404)
 
@@ -70,16 +70,15 @@ class ViewTests(TestCase):
         A logged in user should be able to add a restroom via the form.
         Once added, the restroom page should be accessible.
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
-            data={"yelp_id": yelp_id, "Description": desc},
+            data={"yelp_id": yelp_id, "description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response2.status_code, 200)
         self.assertContains(response2, desc)
@@ -88,16 +87,15 @@ class ViewTests(TestCase):
         """
         A restroom with an invalid description should not be added
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         desc = "9LTRDESCR"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
-            data={"yelp_id": yelp_id, "Description": desc},
+            data={"yelp_id": yelp_id, "description": desc},
         )
-        response2 = c.get(reverse("naturescall:restroom_detail", args=(1,)))
+        response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response2.status_code, 404)
 
@@ -106,8 +104,7 @@ class ViewTests(TestCase):
         A search with an invalid search string should yield no results
         but should return a valid webpage
         """
-        c = Client()
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "szzzzz"}
         )
         self.assertEqual(response.status_code, 200)
@@ -118,8 +115,7 @@ class ViewTests(TestCase):
         A search with a valid search string with an empty database
         should return a valid webpage with 20 "Add Restroom" results
         """
-        c = Client()
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "nyu tandon"}
         )
         self.assertEqual(response.status_code, 200)
@@ -130,11 +126,10 @@ class ViewTests(TestCase):
         A search with a valid search string with a database with one element
         should return a valid webpage with 19 "Add Restroom" results
         """
-        c = Client()
         desc = "TEST DESCRIPTION"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         create_restroom(yelp_id, desc)
-        response = c.post(
+        response = self.client.post(
             reverse("naturescall:search_restroom"), data={"searched": "nyu tandon"}
         )
         self.assertEqual(response.status_code, 200)
@@ -144,8 +139,7 @@ class ViewTests(TestCase):
         """
         A get request to the signup page should yield a valid response
         """
-        c = Client()
-        response = c.get(reverse("accounts:signup"))
+        response = self.client.get(reverse("accounts:signup"))
         self.assertEqual(response.status_code, 200)
 
     def test_get_request_add_restroom_not_logged_in(self):
@@ -153,9 +147,8 @@ class ViewTests(TestCase):
         A get request to the add_restroom page should yield a
         redirect if the user is not logged in
         """
-        c = Client()
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 302)
 
     def test_get_request_add_restroom_logged_in(self):
@@ -163,9 +156,138 @@ class ViewTests(TestCase):
         A get request to the add_restroom page should yield a
         valid response if the user is logged in
         """
-        c = Client()
         user = User.objects.create_user("Jon", "jon@email.com")
-        c.force_login(user=user)
+        self.client.force_login(user=user)
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
-        response = c.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 200)
+
+    def test_account_creation_valid_form(self):
+        """
+        A valid form should yield a redirect upon submission and
+        add a user to the database
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={
+                "username": "test_user",
+                "email": "test_user@email.com",
+                "first_name": "test",
+                "last_name": "user",
+                "password1": "BDbdKDwpSt",
+                "password2": "BDbdKDwpSt",
+            },
+        )
+        all_users = User.objects.filter(id=1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(all_users), 1)
+
+    def test_account_creation_invalid_form(self):
+        """
+        An invalid form should yield an error upon submission
+        """
+        response = self.client.post(
+            reverse("accounts:signup"),
+            data={
+                "username": "test_user",
+                "email": "test_user@email.com",
+                "first_name": "test",
+                "last_name": "user",
+                "password1": "BDbdKDwpSt",
+                "password2": "BDbdKDwpStX",
+            },
+        )
+        self.assertContains(response, "Unsuccessful registration. Invalid information.")
+
+    def test_invalid_verification_link(self):
+        """
+        An invalid verification request should yield a redirect
+        """
+        response = self.client.get(reverse("accounts:activate", args=(1, 1)))
+        self.assertEqual(response.status_code, 302)
+
+    def test_get_rating_one_restroom(self):
+        """
+        Once a restroom is added using create, it should be
+        visible via the rate_restroom link
+        """
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        create_restroom(yelp_id, desc)
+        user = User.objects.create_user("Jon", "jon@email.com")
+        self.client.force_login(user=user)
+        response = self.client.get(reverse("naturescall:rate_restroom", args=(1,)))
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_rating_one_restroom(self):
+        """
+        Once a restroom is added using create, it should be
+        rateable using the restroom_detail link
+        """
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        create_restroom(yelp_id, desc)
+        user = User.objects.create_user("Jon", "jon@email.com")
+        self.client.force_login(user=user)
+        response = self.client.post(
+            reverse("naturescall:rate_restroom", args=(1,)),
+            data={
+                "rating": "4", "headline": "headline1", "comment": "comment1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Rating.objects.all()), 1)
+        self.assertEqual(Rating.objects.all()[0].headline, "headline1")
+
+    def test_rating_previously_rated_restroom(self):
+        """
+        Once a restroom has been rated, the same user should not be able
+        to rate it again
+        """
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        rr = create_restroom(yelp_id, desc)
+        user = User.objects.create_user("Jon", "jon@email.com")
+        self.client.force_login(user=user)
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user,
+            rating="4",
+            headline="headline1",
+            comment="comment1",
+        )
+        response = self.client.get(reverse("naturescall:rate_restroom", args=(1,)))
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Rating.objects.all()), 1)
+        self.assertEqual(Rating.objects.all()[0].headline, "headline1")
+        self.assertIn(messages[0], "Sorry, You have already rated this restroom!!")
+
+    def test_restroom_rating_calculation(self):
+        """
+        A restroom's rating should be the average of all users' ratings
+        """
+        desc = "TEST DESCRIPTION"
+        yelp_id = "E6h-sMLmF86cuituw5zYxw"
+        rr = create_restroom(yelp_id, desc)
+        user1 = User.objects.create_user("Jon1", "jon1@email.com")
+        user2 = User.objects.create_user("Jon2", "jon2@email.com")
+        self.client.force_login(user=user1)
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user1,
+            rating="1",
+            headline="headline1",
+            comment="comment1",
+        )
+        self.client.force_login(user=user2)
+        Rating.objects.create(
+            restroom_id=rr,
+            user_id=user2,
+            rating="4",
+            headline="headline2",
+            comment="comment2",
+        )
+        response = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Rating: 2.5")

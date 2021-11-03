@@ -8,7 +8,7 @@ media
 .DS_Store
 
 # migration files #
-0*.py
+#0*.py
 
 # Backup files #
 *.bak
@@ -67,6 +67,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+.coveragerc
 
 # Jupyter Notebook
 .ipynb_checkpoints
