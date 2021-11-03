@@ -7,3 +7,5 @@ flake8
 coverage
 six
 coveralls
+django_filter
+
