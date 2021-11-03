@@ -14,7 +14,6 @@ before_script:
 script:
   - black .
   - flake8 --max-line-length=92
-  - coverage run --source='.' manage.py test naturescall
-  - coverage run --source='.' manage.py test accounts
+  - coverage run --source='.' manage.py test
 after_success:
   - coveralls
