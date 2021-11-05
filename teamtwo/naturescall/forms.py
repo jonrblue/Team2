@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import widgets
 from .models import Restroom, Rating
 
 
@@ -16,7 +17,7 @@ class AddRestroom(forms.ModelForm):
         widget=forms.TextInput(attrs={"size": 80, "readonly": True}),
     )
     yelp_id = forms.SlugField(
-        disabled=False, widget=forms.TextInput(attrs={"size": 80, "readonly": True})
+        disabled=False, widget=forms.HiddenInput()
     )
     description = forms.CharField(widget=forms.TextInput(attrs={"size": 80}))
 
