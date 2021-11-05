@@ -74,10 +74,11 @@ class ViewTests(TestCase):
         user = User.objects.create_user("Jon", "jon@email.com")
         self.client.force_login(user=user)
         desc = "TEST DESCRIPTION"
+        title = "TEST TITLE"
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         response = self.client.post(
             reverse("naturescall:add_restroom", args=(1,)),
-            data={"yelp_id": yelp_id, "description": desc},
+            data={"yelp_id": yelp_id, "description": desc, "title": title},
         )
         response2 = self.client.get(reverse("naturescall:restroom_detail", args=(1,)))
         self.assertEqual(response.status_code, 302)
@@ -162,6 +163,17 @@ class ViewTests(TestCase):
         yelp_id = "E6h-sMLmF86cuituw5zYxw"
         response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
         self.assertEqual(response.status_code, 200)
+
+    def test_get_request_add_restroom_logged_in_invalid_id(self):
+        """
+        A get request to the add_restroom page should yield a
+        404 error if the user is logged in but supplies an invalid yelp ID
+        """
+        user = User.objects.create_user("Jon", "jon@email.com")
+        self.client.force_login(user=user)
+        yelp_id = "E6h-sMLmF86cuituw5zYxwXXXXXX"
+        response = self.client.get(reverse("naturescall:add_restroom", args=(yelp_id,)))
+        self.assertEqual(response.status_code, 404)
 
     def test_account_creation_valid_form(self):
         """
