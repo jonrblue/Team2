@@ -20,8 +20,8 @@
 </div>
 
 <div class="container"
-  <div class="col d-flex justify-content-center">
 
+  <div class="col d-flex justify-content-center">
     {% if messages %}
     <div class="alert alert-success" role="alert">
       <ul class="messages">
@@ -32,30 +32,45 @@
     </div>
     {% endif %}
 
-
-    <div class="card">
-      <div class="card-body">
-        <h2 class="card-title">
-          {{res.yelp_data.name}}
-          {% if res.yelp_data.accessible %}
-          <span class="badge badge-secondary bg-success text-white">Accessible</span>
-          {% endif %}
-          {% if res.yelp_data.family_friendly  %}
-          <span class="badge badge-secondary bg-primary text-white" >Family Friendly</span>
-          {% endif %}
-          {% if res.yelp_data.transaction_not_required  %}
-          <span class="badge badge-secondary bg-warning text-dark">Transaction Not Required</span>
-          {% endif %}
-        </h2>
-        <h4 class="card-text"> Address: {{res.addr}}</h4>
-        <h4 class="card-text">Rating: {{res.yelp_data.rating}} </h4>
-        <!--
-        <h4 class="card-text">Rating: To Be Determined </h4>
-        -->
-        <h4 class="card-text">Description: {{res.desc}} </h4>
-        <a href="{% url 'naturescall:rate_restroom' res.yelp_data.db_id %}" class="btn btn-primary">Rate Now!</a>
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title">
+              {{res.yelp_data.name}}
+              {% if res.yelp_data.accessible %}
+              <span class="badge badge-secondary bg-success text-white">Accessible</span>
+              {% endif %}
+              {% if res.yelp_data.family_friendly  %}
+              <span class="badge badge-secondary bg-primary text-white" >Family Friendly</span>
+              {% endif %}
+              {% if res.yelp_data.transaction_not_required  %}
+              <span class="badge badge-secondary bg-warning text-dark">Transaction Not Required</span>
+              {% endif %}
+            </h2>
+            <h4 class="card-text"> Address: {{res.addr}}</h4>
+            <h4 class="card-text">Rating: {{res.yelp_data.rating}} </h4>
+            <!--
+            <h4 class="card-text">Rating: To Be Determined </h4>
+            -->
+            <h4 class="card-text">Description: {{res.desc}} </h4>
+            <a href="{% url 'naturescall:rate_restroom' res.yelp_data.db_id %}" class="btn btn-primary">Rate Now!</a>
+          </div>
+        </div>
       </div>
-    </div>
   </div>
-</div>
+
+  <div class="col d-flex justify-content-center">
+    <!-- map card -->
+        <iframe
+            width="600"
+            height="450"
+            style="border:0"
+            loading="lazy"
+            allowfullscreen
+            src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyBurr28xWgFuDbFC-ZX2QIFL2iWYcwMMxE
+              &origin=tandon
+              &destination=345 Adams St, Brooklyn, NY 11201
+              &mode=walking">
+        </iframe>
+     <!-- end of map -->
+  </div>
 {% endblock %}
