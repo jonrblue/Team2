@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from naturescall.models import Rating
 
 # from django.contrib.auth import login, authenticate
@@ -96,7 +96,12 @@ def view_profile(request):
 
 @login_required
 def delete_ratings(request, rate_id):
-    rating_entry = Rating.objects.get(id = rate_id)
-    rating_entry.delete()
-    return render(request, "accounts/delete_ratings.html")
-
+    querySet = Rating.objects.filter(id = rate_id)
+    if not querySet:
+        raise Http404("Sorry, the comment does not exist")
+    rating_entry = querySet[0]
+    if rating_entry.user_id != request.user:
+        raise Http404("Sorry, you do not have the right to delete this comment")
+    else:
+        rating_entry.delete()
+        return render(request, "accounts/delete_ratings.html")
