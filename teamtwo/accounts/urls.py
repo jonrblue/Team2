@@ -6,4 +6,5 @@ urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("activate/<uidb64>/<token>/", views.activate, name="activate"),
     path("profile", views.view_profile, name="profile"),
+    path("delete_ratings/<int:rate_id>", views.delete_ratings, name='delete_ratings'),
 ]

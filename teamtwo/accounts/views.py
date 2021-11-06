@@ -93,3 +93,10 @@ def view_profile(request):
     query_set = Rating.objects.filter(user_id=current_user)
     context = {"u_form": u_form, "p_form": p_form, "ratings": query_set}
     return render(request, "accounts/profile.html", context)
+
+@login_required
+def delete_ratings(request, rate_id):
+    rating_entry = Rating.objects.get(id = rate_id)
+    rating_entry.delete()
+    return render(request, "accounts/delete_ratings.html")
+
