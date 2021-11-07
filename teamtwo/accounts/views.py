@@ -105,3 +105,18 @@ def delete_ratings(request, rate_id):
     else:
         rating_entry.delete()
         return render(request, "accounts/delete_ratings.html")
+
+
+@login_required
+def edit_ratings(request, rate_id):
+    querySet = Rating.objects.filter(id = rate_id)
+    if not querySet:
+        raise Http404("Sorry, the comment does not exist")
+    rating_entry = querySet[0]
+    if rating_entry.user_id != request.user:
+        raise Http404("Sorry, you do not have the right to edit this comment")
+    else:
+        context = {
+            'rating' : rating_entry
+        }
+        return render(request, "accounts/edit_ratings.html", context)

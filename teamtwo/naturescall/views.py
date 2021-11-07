@@ -171,9 +171,9 @@ def rate_restroom(request, r_id):
             messages.success(request, f"{msg}")
             return redirect("naturescall:restroom_detail", r_id=current_restroom.id)
 
-    form = AddRating()
-    context = {"form": form, "title": current_restroom.title}
-    return render(request, "naturescall/rate_restroom.html", context)
+        form = AddRating()
+        context = {"form": form, "title": current_restroom.title}
+        return render(request, "naturescall/rate_restroom.html", context)
 
 
 # The page for adding new restroom to our database
