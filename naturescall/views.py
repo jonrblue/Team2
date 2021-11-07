@@ -229,7 +229,7 @@ def restroom_detail(request, r_id):
         yelp_data["transaction_not_required"] = querySet.values()[0][
             "transaction_not_required"
         ]
-
+        yelp_data["subtitle"] = querySet.values()[0]["subtitle"]
         res["yelp_data"] = yelp_data
         addr = str(yelp_data["location"]["display_address"])
         res["addr"] = addr.translate(str.maketrans("", "", "[]'"))
