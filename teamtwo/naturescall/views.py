@@ -237,7 +237,8 @@ def restroom_detail(request, r_id):
     else:
         raise Http404("Restroom does not exist")
 
-    context = {"res": res}
+    ratings = Rating.objects.filter(restroom_id=r_id)
+    context = {"res": res, "ratings": ratings}
     return render(request, "naturescall/restroom_detail.html", context)
 
 
