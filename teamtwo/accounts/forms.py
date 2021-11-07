@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile, Rating
+from .models import Profile
+from naturescall.models import Rating
 
 
 class SignupForm(UserCreationForm):
@@ -36,8 +37,7 @@ class UserUpdateForm(forms.ModelForm):
         fields = ["email"]
 
 # form for rating and commenting a restroom
-class AddRating(forms.ModelForm):
-
+class EditRating(forms.ModelForm):
     class Meta:
         model = Rating
         fields = [

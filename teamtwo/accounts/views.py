@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.utils.encoding import force_bytes, force_text
 from django.core.mail import EmailMessage
-from .forms import ProfileUpdateForm, UserUpdateForm
+from .forms import ProfileUpdateForm, UserUpdateForm, EditRating
 from django.contrib.auth.decorators import login_required
 
 
@@ -115,8 +115,17 @@ def edit_ratings(request, rate_id):
     rating_entry = querySet[0]
     if rating_entry.user_id != request.user:
         raise Http404("Sorry, you do not have the right to edit this comment")
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+
+
+
     else:
+        form = EditRating()
         context = {
-            'rating' : rating_entry
+            'form' : form,
+            'rate_id' : rate_id
         }
         return render(request, "accounts/edit_ratings.html", context)
