@@ -16,6 +16,7 @@ class Restroom(models.Model):
     family_friendly = models.BooleanField(default=False)
     transaction_not_required = models.BooleanField(default=False)
     title = models.CharField(blank=False, max_length=255, default="Restroom")
+    subtitle = models.CharField(blank=False, max_length=255, default="Subtitle")
 
 
 class Rating(models.Model):
