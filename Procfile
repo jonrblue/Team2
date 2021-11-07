@@ -1,1 +1,1 @@
-web: gunicorn teamtwo.wsgi
+web: gunicorn teamtwo/teamtwo.wsgi
