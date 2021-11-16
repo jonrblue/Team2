@@ -229,7 +229,7 @@ def restroom_detail(request, r_id):
         yelp_data["transaction_not_required"] = querySet.values()[0][
             "transaction_not_required"
         ]
-
+        yelp_data["subtitle"] = querySet.values()[0]["Subtitle"]
         res["yelp_data"] = yelp_data
         addr = str(yelp_data["location"]["display_address"])
         res["addr"] = addr.translate(str.maketrans("", "", "[]'"))
@@ -237,7 +237,8 @@ def restroom_detail(request, r_id):
     else:
         raise Http404("Restroom does not exist")
 
-    context = {"res": res}
+    ratings = Rating.objects.filter(restroom_id=r_id)
+    context = {"res": res, "ratings": ratings}
     return render(request, "naturescall/restroom_detail.html", context)
 
 

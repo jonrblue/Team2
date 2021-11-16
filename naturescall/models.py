@@ -16,7 +16,10 @@ class Restroom(models.Model):
     family_friendly = models.BooleanField(default=False)
     transaction_not_required = models.BooleanField(default=False)
     title = models.CharField(blank=False, max_length=255, default="Restroom")
+    Subtitle = models.CharField(blank=False, max_length=255, default="Subtitle")
 
+    def __str__(self):
+        return f"{self.title[:50]}..."
 
 class Rating(models.Model):
     """Class to hold user-generated ratings, headlines, and comments
